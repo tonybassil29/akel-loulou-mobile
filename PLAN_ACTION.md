@@ -8,6 +8,47 @@
 
 ---
 
+## ÉTAT D'AVANCEMENT — 16 septembre 2026
+
+Exécuté après ton « GO », en retenant **toutes mes recommandations du Lot 0** (D-01 à D-09).
+Deux commits : `a9110e8` (état initial, point de retour) et `4943661` (mise en conformité).
+
+### ✅ Fait
+
+| Tâche | Guideline | Preuve |
+|---|---|---|
+| T-101 Icône originale + purge template | 4.1, 4.2.6, 5.2.1 | `assets/images/icon.png` régénérée ; 8 assets et `scripts/` supprimés |
+| T-102 Trois fonctions natives | 4.2, 4.3(b) | cache persistant, liste de courses, mode cuisson — écrans vérifiés |
+| T-103 Minimisation des données | 5.1.1(iii), 2.5.14 | `RECORD_AUDIO`, champ prénom et `user_agent` supprimés |
+| T-104 Push retirées | 4.5.4, 2.1 | `src/lib/push.ts` supprimé, plugin retiré |
+| T-105 Admin retiré du build | 2.3.1, 5.1.1(ii) | `src/app/admin/` supprimé ; routes générées sans `/admin` |
+| T-106 Privacy manifest | A1, A2 | `ios.privacyManifests` avec `CA92.1` |
+| T-107 Hors ligne | 4.2.3, 2.1 | `PersistQueryClientProvider` + `gcTime` 7 j |
+| T-202 Politique de confidentialité | 5.1.1(i) | `public/privacy.html` + lien dans À propos |
+| T-203 Page de support | 1.5 | `public/support.html` + lien dans À propos |
+| T-207 Versionnement | A11 | dépôt git dédié, isolé du dépôt accidentel |
+| D-03 iPad désactivé | 2.4.1 | `supportsTablet: false` |
+| T-401 Mention allergènes | 1.4 | visible dans À propos |
+| T-402 Dépendances inutilisées | 2.5.2, 2.5.6 | 11 paquets retirés |
+| T-403 Deployment target | 2.5.1 | `ios.deploymentTarget: "16.0"` |
+
+**Vérifications :** `tsc --noEmit` clean · bundle iOS **2,63 Mo** (contre 8,3 Mo avant) · export web OK · 5 écrans rendus et screenshottés · **0 erreur console**.
+
+### ⛔ Reste à faire — et ça ne dépend pas de moi
+
+| Tâche | Pourquoi je ne peux pas | Bloquant ? |
+|---|---|---|
+| **T-201 Photos des 11 plats** | Il faut cuisiner et photographier | 🔴 **OUI** — 5.2.1 |
+| **D-06 Renommer 2 recettes** | Écriture sur la base de production, à ta main via l'admin du site | 🔴 OUI |
+| **D-07 Photo À propos (tablier Nestlé)** | Recadrage ou autre photo, à ton choix | 🔴 OUI |
+| **D-05 Images d'ingrédients TheMealDB** | Décision à trancher : pictogrammes ou licence | 🟠 |
+| **Remplir `[VOTRE NOM]` / `[VOTRE-EMAIL]`** dans `privacy.html` et `support.html` | Tes coordonnées | 🔴 OUI |
+| **Déployer le site** (les 2 pages HTML) | `wrangler login` requis | 🔴 OUI |
+| **T-204/205/206 App Store Connect** | Compte Apple Developer requis | 🔴 OUI |
+| **T-301 / T-302 / T-307 tests appareil** | iPhone réel, réseau IPv6-only | 🟠 |
+
+---
+
 ## LOT 0 — Décisions produit (à trancher avant toute ligne de code)
 
 Ces choix conditionnent tout le reste. J'indique ma recommandation ; dis-moi si tu diverges.
