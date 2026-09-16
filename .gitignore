@@ -16,3 +16,6 @@ android/
 
 expo-env.d.ts
 # @end expo-cli
+# Cles privees App Store Connect — ne jamais commiter
+*.p8
+.secrets/

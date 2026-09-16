@@ -10,7 +10,9 @@
     },
     "preview": {
       "distribution": "internal",
-      "ios": { "simulator": false },
+      "ios": {
+        "simulator": false
+      },
       "channel": "preview"
     },
     "production": {
@@ -19,6 +21,13 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "ascApiKeyPath": "./.secrets/AuthKey_A476YC7FGM.p8",
+        "ascApiKeyId": "A476YC7FGM",
+        "ascApiKeyIssuerId": "e74a3f34-05de-4e28-8ccc-04b8534d6cbb",
+        "appleTeamId": "G67U5SNR8X"
+      }
+    }
   }
 }
