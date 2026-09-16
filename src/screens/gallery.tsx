@@ -7,6 +7,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EmptyState, ErrorState, LoadingState } from '@/components/screen-state';
 import { thumbUrl } from '@/lib/images';
+import { useIsRestoring } from '@tanstack/react-query';
+
 import { useGallery } from '@/lib/queries';
 import type { GalleryItem } from '@/lib/types';
 import { radius, spacing, type } from '@/theme';
@@ -25,6 +27,9 @@ export function GalleryScreen() {
   const gap = spacing.row;
   const columnWidth = (width - spacing.gutter * 2 - gap) / 2;
   const items = query.data ?? [];
+  // Le cache persiste se rehydrate de facon asynchrone : sans ca, la galerie
+  // clignote sur « vide » a chaque lancement.
+  const isRestoring = useIsRestoring();
 
   // Repartition en deux colonnes, en alternance simple.
   const columns: GalleryItem[][] = [[], []];
@@ -64,11 +69,11 @@ export function GalleryScreen() {
           Galerie
         </Text>
 
-        {query.isLoading ? (
+        {isRestoring || query.isLoading ? (
           <View style={{ height: 320 }}>
             <LoadingState />
           </View>
-        ) : query.isError ? (
+        ) : query.isError && items.length === 0 ? (
           <View style={{ height: 320 }}>
             <ErrorState message={(query.error as Error)?.message} onRetry={query.refetch} />
           </View>

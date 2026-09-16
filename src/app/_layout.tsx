@@ -9,7 +9,11 @@ import {
   DMSans_600SemiBold,
   DMSans_700Bold,
 } from '@expo-google-fonts/dm-sans';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
+import { QueryClient } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import Constants from 'expo-constants';
 import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import { Stack } from 'expo-router/stack';
@@ -21,14 +25,34 @@ import { useAppTheme } from '@/theme/use-app-theme';
 
 SplashScreen.preventAutoHideAsync();
 
+const WEEK = 7 * 24 * 60 * 60 * 1000;
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 2 * 60 * 1000,
       retry: 2,
+      // Le cache doit survivre a une semaine sans ouvrir l'app, sinon il serait
+      // ramasse avant meme d'etre relu au retour.
+      gcTime: WEEK,
+      // Hors ligne, on sert le cache d'abord et on tente quand meme la requete
+      // au lieu de la mettre en pause : c'est ce qui permet a l'app d'etre
+      // entierement utilisable en avion ou en magasin.
+      networkMode: 'offlineFirst',
     },
   },
 });
+
+const persister = createAsyncStoragePersister({
+  storage: AsyncStorage,
+  key: 'akel-loulou.query-cache',
+});
+
+/**
+ * Change de valeur a chaque version : sans ca, un cache ecrit par une version
+ * precedente serait rehydrate tel quel sous un type modifie, et planterait.
+ */
+const CACHE_BUSTER = Constants.expoConfig?.version ?? '1.0.0';
 
 export default function RootLayout() {
   const theme = useAppTheme();
@@ -54,7 +78,9 @@ export default function RootLayout() {
     : { ...DefaultTheme, colors: { ...DefaultTheme.colors, background: palette.light.bgMain } };
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{ persister, maxAge: WEEK, buster: CACHE_BUSTER }}>
       <ThemeProvider value={navigationTheme}>
         <Stack
           screenOptions={{
@@ -63,6 +89,8 @@ export default function RootLayout() {
           }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="recipe/[id]" />
+          <Stack.Screen name="about" />
+          <Stack.Screen name="cook/[id]" options={{ presentation: 'fullScreenModal' }} />
           <Stack.Screen
             name="suggest"
             options={{
@@ -76,6 +104,6 @@ export default function RootLayout() {
           />
         </Stack>
       </ThemeProvider>
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   );
 }

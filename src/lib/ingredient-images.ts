@@ -63,8 +63,19 @@ const INGREDIENT_IMAGES: Record<string, string> = {
 // Cles triees du plus long au plus court : "sucre glace" doit gagner sur "sucre".
 const SORTED_KEYS = Object.keys(INGREDIENT_IMAGES).sort((a, b) => b.length - a.length);
 
-const QUANTITY_PREFIX =
-  /^(\d+(?:[.,]\d+)?(?:\/\d+)?(?:-\d+)?)\s*(g|kg|ml|cl|l|c\u00e0s|c\u00e0c|cuill\u00e8re|pinc\u00e9e|sachet|gousse|tranche)?s?\s*(de|d')?\s*/i;
+// Unites triees du plus long au plus court et suivies d'une frontiere de mot :
+// sans \b, le "g" de l'alternance mangeait le "g" de "gousses d'ail" et le
+// libelle devenait "ousses d'ail" — visible sur la liste de courses.
+const UNITS =
+  "cuill\u00e8res|cuill\u00e8re|pinc\u00e9es|pinc\u00e9e|poign\u00e9es|poign\u00e9e|tranches|tranche|" +
+  "gousses|gousse|sachets|sachet|briques|brique|bo\u00eetes|bo\u00eete|boites|boite|" +
+  "verres|verre|tasses|tasse|bottes|botte|pots|pot|c\u00e0s|c\u00e0c|cs|cc|kg|ml|cl|g|l";
+
+const QUANTITY_PREFIX = new RegExp(
+  "^(?:\\d+(?:[.,]\\d+)?(?:\\/\\d+)?(?:-\\d+)?|[\u00bd\u00bc\u00be\u2153\u2154])\\s*" +
+    "(?:(?:" + UNITS + ")\\b\\.?)?\\s*(?:de\\s|d')?\\s*",
+  "i"
+);
 
 /** Retire la quantite pour n'afficher que le nom sous la vignette. */
 export function ingredientName(text: string): string {

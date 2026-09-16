@@ -1,3 +1,4 @@
+import { useIsRestoring } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { useMemo, useState } from 'react';
@@ -32,6 +33,7 @@ export function HomeScreen() {
   const theme = useAppTheme();
   const router = useRouter();
 
+  const isRestoring = useIsRestoring();
   const recipesQuery = useRecipes();
   const { data: header } = useHeaderSettings();
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
@@ -105,7 +107,7 @@ export function HomeScreen() {
   const gap = spacing.row;
   const cardWidth = (width - spacing.gutter * 2 - gap) / 2;
   const hasFilter = category !== 'all' || country !== 'all' || tag !== 'all' || search.length > 0;
-  const isHydrating = recipesQuery.isLoading || favorites === null;
+  const isHydrating = isRestoring || recipesQuery.isLoading || favorites === null;
 
   const reset = () => {
     setCategory('all');
@@ -141,6 +143,36 @@ export function HomeScreen() {
         }
         ListHeaderComponent={
           <View style={{ gap: spacing.group, paddingBottom: spacing.group }}>
+            {/* --- bandeau de marque : c'est ici que vit desormais « A propos »,
+                   qui a laisse sa place au Menu dans la barre d'onglets --- */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.row }}>
+              <View style={{ width: 28, height: 1, backgroundColor: theme.accent }} />
+              <Text style={{ ...type.eyebrow, flex: 1, color: theme.accent }}>
+                AKEL LOULOU · CARNET
+              </Text>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="À propos, confidentialité et support"
+                onPress={() => router.push('/about')}
+                style={({ pressed }) => ({
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: spacing.xs,
+                  paddingHorizontal: 12,
+                  paddingVertical: 7,
+                  borderRadius: radius.pill,
+                  borderWidth: 1,
+                  borderColor: theme.borderCard,
+                  backgroundColor: theme.bgCard,
+                  opacity: pressed ? 0.7 : 1,
+                })}>
+                <Icon name={icons.heart} size={12} color={theme.accent} />
+                <Text style={{ ...type.caption, fontSize: 12, color: theme.accent }}>
+                  À propos
+                </Text>
+              </Pressable>
+            </View>
+
             {/* --- recherche + suggestion, comme la barre du site --- */}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
               <View
@@ -238,7 +270,7 @@ export function HomeScreen() {
           <View style={{ height: 320 }}>
             {isHydrating ? (
               <LoadingState label="Chargement des recettes…" />
-            ) : recipesQuery.isError ? (
+            ) : recipesQuery.isError && catalogue.length === 0 ? (
               <ErrorState
                 message={(recipesQuery.error as Error)?.message}
                 onRetry={recipesQuery.refetch}

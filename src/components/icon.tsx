@@ -69,4 +69,5 @@ export const icons = {
   checkmark: { sf: 'checkmark', md: 'check' },
   wifiSlash: { sf: 'wifi.slash', md: 'wifi-off' },
   bookmark: { sf: 'book.closed', md: 'menu-book' },
+  calendar: { sf: 'calendar', md: 'calendar-month' },
 } as const satisfies Record<string, IconName>;

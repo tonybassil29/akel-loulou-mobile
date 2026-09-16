@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import fallbackRecipes from '../assets/fallback-recipes.json';
 import { supabase } from './supabase';
 import type {
   AboutSettings,
@@ -38,10 +39,25 @@ async function fetchRecipes(includeHidden: boolean): Promise<Recipe[]> {
   return (data ?? []) as Recipe[];
 }
 
+/**
+ * Carnet embarque a la compilation. Il ne sert qu'a un cas precis : le tout
+ * premier lancement sans reseau, ou le cache persiste est encore vide. Sans
+ * lui, l'app s'ouvrirait sur « Connexion impossible » — ce que verrait un
+ * relecteur App Store en mode avion. Des qu'une reponse arrive du serveur,
+ * c'est elle qui fait foi. Regenerable par scripts/build-fallback-recipes.mjs.
+ */
+const FALLBACK_RECIPES = fallbackRecipes as unknown as Recipe[];
+
 export function useRecipes(includeHidden = false) {
   return useQuery({
     queryKey: queryKeys.recipes(includeHidden),
     queryFn: () => fetchRecipes(includeHidden),
+    // `placeholderData` plutot qu'un repli sur `isError` : hors ligne, la
+    // requete reste longtemps en cours (elle retente) avant d'echouer, et
+    // l'ecran resterait sur un spinner. Le placeholder s'affiche tout de suite,
+    // n'est jamais ecrit dans le cache, et disparait des la premiere reponse
+    // reelle — y compris celle restauree depuis le cache persiste.
+    placeholderData: includeHidden ? undefined : FALLBACK_RECIPES,
   });
 }
 
@@ -71,7 +87,8 @@ export function useRecipe(id: string | undefined) {
         const hit = list?.find((r) => r.id === id);
         if (hit) return hit;
       }
-      return undefined;
+      // Hors ligne au premier lancement : la fiche doit s'ouvrir quand meme.
+      return FALLBACK_RECIPES.find((r) => r.id === id);
     },
   });
 }

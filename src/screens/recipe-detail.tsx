@@ -311,6 +311,34 @@ export function RecipeDetailScreen({ id }: { id: string }) {
             <View style={{ gap: spacing.group }}>
               <SectionHeader title="Préparation" />
 
+              {/* Mode cuisson : une etape par ecran, ecran maintenu allume,
+                  minuteurs detectes dans le texte. */}
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Lancer le mode cuisson"
+                onPress={() =>
+                  router.push({ pathname: '/cook/[id]', params: { id: recipe.id } })
+                }
+                style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
+                <LinearGradient
+                  colors={brandGradient(theme)}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: spacing.sm,
+                    paddingVertical: 15,
+                    borderRadius: radius.pill,
+                  }}>
+                  <Icon name={icons.sparkles} size={15} color={theme.btnText} />
+                  <Text style={{ ...type.button, color: theme.btnText }}>
+                    Mode cuisson {'\u00b7'} {steps.length} étapes
+                  </Text>
+                </LinearGradient>
+              </Pressable>
+
               <View>
                 {steps.map((step, index) => (
                   <StepRow

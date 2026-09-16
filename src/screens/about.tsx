@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Link } from 'expo-router';
+import { useIsRestoring } from '@tanstack/react-query';
+import { Link, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { Linking, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,8 +20,10 @@ const SITE_URL = 'https://laurecipe.akeloulou.workers.dev';
 export function AboutScreen() {
   const theme = useAppTheme();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const { width } = useWindowDimensions();
 
+  const isRestoring = useIsRestoring();
   const aboutQuery = useAboutSettings();
   const recipesQuery = useRecipes();
 
@@ -45,11 +48,35 @@ export function AboutScreen() {
           paddingBottom: spacing.section * 2,
           gap: spacing.section,
         }}>
-        {aboutQuery.isLoading ? (
+        {/* Depuis que l'onglet a laisse sa place au Menu, cet ecran est empile :
+            il lui faut son propre retour, identique a celui d'une fiche. */}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Retour"
+          onPress={() => router.back()}
+          style={({ pressed }) => ({
+            alignSelf: 'flex-start',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: spacing.sm,
+            paddingHorizontal: 18,
+            paddingVertical: 11,
+            borderRadius: radius.pill,
+            borderWidth: 1,
+            borderColor: theme.borderCard,
+            backgroundColor: theme.bgCard,
+            marginBottom: -spacing.gutter,
+            opacity: pressed ? 0.7 : 1,
+          })}>
+          <Text style={{ fontSize: 15, color: theme.accent }}>{'\u2190'}</Text>
+          <Text style={{ ...type.bodySemi, fontSize: 14.5, color: theme.accent }}>Retour</Text>
+        </Pressable>
+
+        {isRestoring || aboutQuery.isLoading ? (
           <View style={{ height: 360 }}>
             <LoadingState />
           </View>
-        ) : aboutQuery.isError ? (
+        ) : aboutQuery.isError && !aboutQuery.data ? (
           <View style={{ height: 360 }}>
             <ErrorState
               message={(aboutQuery.error as Error)?.message}
@@ -199,46 +226,6 @@ export function AboutScreen() {
               </View>
             ) : null}
 
-            {/* 5.1.1(i) : la politique de confidentialite doit etre atteignable
-                depuis l'app, pas seulement depuis la fiche App Store. */}
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: spacing.row,
-              }}>
-              <Pressable
-                accessibilityRole="link"
-                accessibilityLabel="Politique de confidentialité"
-                onPress={() => Linking.openURL(`${SITE_URL}/privacy`)}
-                style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
-                <Text style={{ ...type.caption, fontSize: 12.5, color: theme.accent }}>
-                  Confidentialité
-                </Text>
-              </Pressable>
-              <Text style={{ ...type.caption, color: theme.textPlaceholder }}>{'\u00b7'}</Text>
-              <Pressable
-                accessibilityRole="link"
-                accessibilityLabel="Support"
-                onPress={() => Linking.openURL(`${SITE_URL}/support`)}
-                style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
-                <Text style={{ ...type.caption, fontSize: 12.5, color: theme.accent }}>
-                  Support
-                </Text>
-              </Pressable>
-            </View>
-
-            <Text
-              style={{
-                ...type.caption,
-                color: theme.textPlaceholder,
-                textAlign: 'center',
-                paddingHorizontal: spacing.row,
-              }}>
-              Les recettes sont familiales : vérifiez toujours les allergènes et les
-              temps de cuisson selon votre matériel.
-            </Text>
 
             {/* --- actions --- */}
             <View style={{ gap: spacing.row }}>
@@ -265,7 +252,60 @@ export function AboutScreen() {
             </View>
           </>
         )}
+
+        {/* Hors de la branche de chargement a dessein : meme hors ligne ou en
+            erreur de reseau, la politique de confidentialite et le support
+            doivent rester atteignables depuis l'app (5.1.1(i)). */}
+        <LegalLinks />
       </ScrollView>
+    </>
+  );
+}
+
+function LegalLinks() {
+  const theme = useAppTheme();
+  return (
+    <>
+      {/* 5.1.1(i) : la politique de confidentialite doit etre atteignable
+          depuis l'app, pas seulement depuis la fiche App Store. */}
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: spacing.row,
+        }}>
+        <Pressable
+          accessibilityRole="link"
+          accessibilityLabel="Politique de confidentialité"
+          onPress={() => Linking.openURL(`${SITE_URL}/privacy`)}
+          style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
+          <Text style={{ ...type.caption, fontSize: 12.5, color: theme.accent }}>
+            Confidentialité
+          </Text>
+        </Pressable>
+        <Text style={{ ...type.caption, color: theme.textPlaceholder }}>{'\u00b7'}</Text>
+        <Pressable
+          accessibilityRole="link"
+          accessibilityLabel="Support"
+          onPress={() => Linking.openURL(`${SITE_URL}/support`)}
+          style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
+          <Text style={{ ...type.caption, fontSize: 12.5, color: theme.accent }}>
+            Support
+          </Text>
+        </Pressable>
+      </View>
+
+      <Text
+        style={{
+          ...type.caption,
+          color: theme.textPlaceholder,
+          textAlign: 'center',
+          paddingHorizontal: spacing.row,
+        }}>
+        Les recettes sont faites maison : vérifiez toujours les allergènes et les
+        temps de cuisson selon votre matériel.
+      </Text>
     </>
   );
 }

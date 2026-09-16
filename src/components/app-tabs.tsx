@@ -22,6 +22,22 @@ export default function AppTabs() {
       </NativeTabs.Trigger>
 
 
+      <NativeTabs.Trigger name="fridge">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'sparkles', selected: 'sparkles' }}
+          md="auto_awesome"
+        />
+        <NativeTabs.Trigger.Label>Frigo</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="plan">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'calendar', selected: 'calendar' }}
+          md="calendar_month"
+        />
+        <NativeTabs.Trigger.Label>Menu</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+
       <NativeTabs.Trigger name="shopping">
         <NativeTabs.Trigger.Icon
           sf={{ default: 'cart', selected: 'cart.fill' }}
@@ -38,10 +54,6 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Label>Galerie</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="about">
-        <NativeTabs.Trigger.Icon sf={{ default: 'heart', selected: 'heart.fill' }} md="favorite" />
-        <NativeTabs.Trigger.Label>{'\u00c0 propos'}</NativeTabs.Trigger.Label>
-      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }
