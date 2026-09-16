@@ -130,3 +130,109 @@ Dans `store-screenshots/6.9/` (**1320 × 2868**) et `store-screenshots/6.5/` (**
    restauration des 11 plats. Écart mineur mais réel (2.3.3) : à regénérer une
    fois les nouvelles photos en place — le script est prêt.
 2. Les deux formats exigés par App Store Connect sont produits.
+
+---
+
+# FICHE APP STORE CONNECT — à remplir de A à Z
+
+## Étape 1 — Créer l'enregistrement de l'app *(toi, 2 minutes, web uniquement)*
+
+L'API App Store Connect **ne permet pas** de créer une app. Citation de la documentation Apple
+(`developer.apple.com/documentation/appstoreconnectapi/apps`) :
+
+> *« Don't use this API to create new apps; instead, create new apps on the App Store Connect website. »*
+
+Sur https://appstoreconnect.apple.com → **Apps** → **+** → **Nouvelle app** :
+
+| Champ | Valeur exacte |
+|---|---|
+| Plateformes | **iOS** uniquement |
+| Nom | `Akel Loulou` |
+| Langue principale | **Français (France)** |
+| Bundle ID | `com.akelloulou.recipes` |
+| SKU | `akel-loulou-ios-001` |
+| Accès utilisateur | Accès complet |
+
+> Si le Bundle ID n'apparaît pas dans la liste, c'est qu'il n'est pas encore enregistré sur le
+> portail développeur. Il le sera automatiquement au premier `eas build`, ou manuellement sur
+> Certificates, IDs & Profiles → Identifiers → **+** → App IDs → App → `com.akelloulou.recipes`.
+
+## Étape 2 — Informations sur l'app
+
+| Champ | Valeur |
+|---|---|
+| Sous-titre | `Le carnet de recettes maison` |
+| Catégorie principale | **Cuisine et boissons** |
+| Catégorie secondaire | *(laisser vide)* |
+| Droits d'auteur | `2026 Toni Bassil` |
+
+## Étape 3 — Classification par âge → **4+**
+
+Réponds **« Aucun / Non »** à l'intégralité du questionnaire. Détail des rubriques sensibles :
+
+| Question | Réponse | Pourquoi |
+|---|---|---|
+| Violence dessinée ou fantastique | Aucun | Photos de plats uniquement |
+| Violence réaliste | Aucun | — |
+| Contenu sexuel ou nudité | Aucun | — |
+| Blasphème ou humour grossier | Aucun | — |
+| Alcool, tabac, drogues | **Aucun** | Aucune recette visible n'en contient. *À revérifier si tu ajoutes une recette au vin* |
+| Thèmes horrifiques | Aucun | — |
+| Jeux d'argent | Aucun | — |
+| Concours | Aucun | — |
+| Contenu généré par les utilisateurs **non modéré** | **Non** | Les suggestions ne sont jamais republiées |
+| Accès web non restreint | **Non** | Aucune WebView dans l'app |
+| Fonctions de messagerie | Non | — |
+| **Kids Category** | **NON cochée** | Guideline 1.3 |
+
+**Résultat attendu : 4+**
+
+## Étape 4 — Confidentialité de l'app → **Aucune donnée collectée**
+
+Écran « Confidentialité de l'app » → **« Non, nous ne collectons aucune donnée de cette app »**.
+
+Justification, vérifiable dans le code :
+
+| Donnée | Où elle vit | Quitte l'appareil ? |
+|---|---|---|
+| Favoris | `src/lib/favorites.ts` — AsyncStorage | **Non** |
+| Liste de courses | `src/lib/shopping-list.ts` — AsyncStorage | **Non** |
+| Suggestion de recette | `src/lib/queries.ts` | Oui, **sur action explicite**, texte libre seul — ni nom, ni e-mail, ni identifiant d'appareil |
+
+Aucun SDK d'analyse, aucune publicité, aucun IDFA, aucun App Tracking Transparency,
+aucune localisation, aucun compte. `NSPrivacyTracking: false` dans le manifeste.
+
+> Le champ libre « suggestion » est du contenu fourni volontairement, sans identifiant associé,
+> et n'est pas rattaché à une personne. C'est ce qui permet de déclarer « aucune donnée collectée ».
+> Si tu réintroduis un jour le champ prénom, cette déclaration devient fausse — il faudra
+> déclarer `Contact Info → Name`.
+
+## Étape 5 — URL
+
+| Champ | Valeur |
+|---|---|
+| URL de support | `https://laurecipe.akeloulou.workers.dev/support` |
+| URL marketing | `https://laurecipe.akeloulou.workers.dev` |
+| Politique de confidentialité | `https://laurecipe.akeloulou.workers.dev/privacy` |
+
+Les trois répondent **HTTP 200**, vérifié après déploiement.
+
+## Étape 6 — Captures d'écran
+
+`store-screenshots/6.9/` (1320 × 2868) et `store-screenshots/6.5/` (1284 × 2778), 5 chacune.
+
+## Étape 7 — Conformité export
+
+`ITSAppUsesNonExemptEncryption = false`. L'app n'utilise que HTTPS/TLS standard, exemption
+applicable, aucun document ERN à fournir.
+
+## Étape 8 — Build
+
+```powershell
+cd C:\Users\tonyb\Documents\AkelLoulou-mobile
+npx eas-cli@latest build -p ios --profile production
+npx eas-cli@latest submit -p ios --latest
+```
+
+Le build monte dans TestFlight. **Ne pas cliquer « Soumettre pour examen »** avant le
+remplacement des 11 photos.
