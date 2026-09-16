@@ -211,7 +211,7 @@ export function AboutScreen() {
               <Pressable
                 accessibilityRole="link"
                 accessibilityLabel="Politique de confidentialité"
-                onPress={() => Linking.openURL(`${SITE_URL}/privacy.html`)}
+                onPress={() => Linking.openURL(`${SITE_URL}/privacy`)}
                 style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
                 <Text style={{ ...type.caption, fontSize: 12.5, color: theme.accent }}>
                   Confidentialité
@@ -221,7 +221,7 @@ export function AboutScreen() {
               <Pressable
                 accessibilityRole="link"
                 accessibilityLabel="Support"
-                onPress={() => Linking.openURL(`${SITE_URL}/support.html`)}
+                onPress={() => Linking.openURL(`${SITE_URL}/support`)}
                 style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
                 <Text style={{ ...type.caption, fontSize: 12.5, color: theme.accent }}>
                   Support

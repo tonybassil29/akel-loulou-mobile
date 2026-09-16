@@ -23,9 +23,9 @@ Valeurs prêtes à copier dans App Store Connect. Rédigées le 16 septembre 202
 | **SKU** | `akel-loulou-ios-001` |  |
 | **Prix** | Gratuit |  |
 | **Copyright** | `2026 Toni Bassil` |  |
-| **URL de support** | `https://laurecipe.akeloulou.workers.dev/support.html` |  |
+| **URL de support** | `https://laurecipe.akeloulou.workers.dev/support` |  |
 | **URL marketing** | `https://laurecipe.akeloulou.workers.dev` |  |
-| **Politique de confidentialité** | `https://laurecipe.akeloulou.workers.dev/privacy.html` |  |
+| **Politique de confidentialité** | `https://laurecipe.akeloulou.workers.dev/privacy` |  |
 
 ## Mots-clés (100 caractères max)
 
