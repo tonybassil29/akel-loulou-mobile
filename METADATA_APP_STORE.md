@@ -30,10 +30,10 @@ Valeurs prêtes à copier dans App Store Connect. Rédigées le 16 septembre 202
 ## Mots-clés (100 caractères max)
 
 ```
-recette,cuisine,maison,libanais,oriental,courses,liste,plat,dessert,carnet,facile
+recette,cuisine,frigo,menu,semaine,courses,liste,minuteur,libanais,oriental,dessert,maison
 ```
 
-81 caractères. Aucune marque tierce, aucun nom de concurrent, aucun prix — conforme 2.3.7 et 5.6.3.
+90 caractères. Aucune marque tierce, aucun nom de concurrent, aucun prix — conforme 2.3.7 et 5.6.3.
 
 ## Description
 
@@ -46,10 +46,30 @@ CHAQUE RECETTE, EN ENTIER
 Les ingrédients illustrés un par un, les épices, le matériel, et les étapes
 détaillées. Ajustez les portions : les quantités se recalculent toutes seules.
 
+LE FRIGO MAGIQUE
+Dites ce que vous avez sous la main. L'app classe les recettes en trois temps :
+réalisables tout de suite, celles où il ne manque qu'un ou deux ingrédients, et
+les autres. Tout le calcul se fait sur votre iPhone, rien n'est envoyé nulle
+part.
+
+LE MENU DE LA SEMAINE
+Sept jours, trois repas par jour. Posez une recette sur un créneau d'un appui,
+puis envoyez toute la semaine vers votre liste de courses : les ingrédients
+arrivent déjà regroupés par rayon, sans doublon.
+
 VOTRE LISTE DE COURSES
 Un appui sur le panier verse tous les ingrédients d'une recette dans votre
-liste. Cochez au fur et à mesure dans les rayons, regroupé par plat. Partagez-la
-en un geste.
+liste. Cochez au fur et à mesure dans les rayons. Partagez-la en un geste.
+
+LE MODE CUISSON
+Une étape par écran, en grand, et l'écran reste allumé pendant que vous
+cuisinez. Les durées mentionnées dans les étapes deviennent des minuteurs :
+un appui et le compte à rebours démarre.
+
+MÊME SANS RÉSEAU
+Vos recettes, vos favoris, votre liste de courses, votre menu et votre frigo
+restent disponibles hors connexion — en avion, dans un sous-sol ou au fond du
+magasin.
 
 TROUVEZ CE DONT VOUS AVEZ ENVIE
 Cherchez par ingrédient — « courgette », « chocolat » — et l'app fouille les
@@ -83,7 +103,8 @@ Première version d'Akel Loulou.
 
 **`Data Not Collected`** — aucune donnée n'est collectée.
 
-Justifié : favoris, liste de courses et cache restent sur l'appareil (AsyncStorage).
+Justifié : favoris, liste de courses, menu de la semaine, frigo et cache des
+recettes restent sur l'appareil (AsyncStorage).
 Le seul envoi possible est le texte d'une suggestion de recette, à l'initiative
 explicite de la personne, sans nom ni identifiant joint.
 
@@ -93,6 +114,8 @@ explicite de la personne, sans nom ni identifiant joint.
 
 ## Notes pour l'App Review
 
+*Texte effectivement enregistré dans App Store Connect le 16 septembre 2026.*
+
 ```
 Bonjour,
 
@@ -100,14 +123,35 @@ Akel Loulou est une application de recettes de cuisine maison. Les recettes,
 les photos et les textes sont produits par nos soins : rien n'est repris
 d'une source tierce.
 
+FONCTIONNALITÉS NATIVES, POUR VOTRE ÉVALUATION
+• Frigo (2e onglet) : saisissez « oignon » puis « riz ». L'application classe
+  les recettes en trois groupes — réalisables immédiatement, celles où il ne
+  manque qu'un ou deux ingrédients, et les autres. Le calcul est entièrement
+  local : aucune requête réseau, aucun service tiers, aucune IA.
+• Menu (3e onglet) : touchez le « + » d'un créneau pour y poser une recette,
+  sur sept jours et trois repas par jour. « Envoyer vers les courses » agrège
+  les ingrédients de la semaine, les regroupe par rayon, sans doublon.
+• Mode cuisson : une étape par écran, l'écran reste allumé, et les durées
+  écrites dans les étapes deviennent des minuteurs (« Cuire les œufs 6 min »
+  dans la recette Ramen).
+• Hors ligne : après un premier lancement, mode Avion puis relance. Recettes,
+  galerie, favoris, courses, menu et frigo restent disponibles. Un jeu de
+  recettes est embarqué pour couvrir un tout premier lancement sans réseau.
+
+CONFIDENTIALITÉ ET PERMISSIONS
 • Aucun compte n'est nécessaire. Toutes les fonctionnalités sont accessibles
   dès le lancement. Aucun identifiant de démonstration n'est donc requis.
 • Aucun achat intégré, aucune publicité, aucun outil de mesure d'audience,
   aucun suivi. Aucune donnée personnelle n'est collectée.
-• Les favoris et la liste de courses sont stockés uniquement sur l'appareil.
+• Favoris, liste de courses, menu et frigo sont stockés uniquement sur
+  l'appareil, jamais transmis à un serveur.
+• L'écran « À propos », atteignable depuis le bouton en haut de l'onglet
+  Recettes, contient les liens vers la politique de confidentialité et la
+  page de support, tous deux publics.
 • Le formulaire « Proposer une recette » nous envoie un texte libre, en privé.
   Il n'est jamais republié ni montré à d'autres utilisateurs : il n'y a ni
   profils, ni messagerie, ni contenu public entre personnes.
+• L'application ne demande aucune autorisation système.
 
 Langue de l'application : français.
 Contact : tonybassil292@gmail.com
@@ -202,6 +246,9 @@ Justification, vérifiable dans le code :
 |---|---|---|
 | Favoris | `src/lib/favorites.ts` — AsyncStorage | **Non** |
 | Liste de courses | `src/lib/shopping-list.ts` — AsyncStorage | **Non** |
+| Menu de la semaine | `src/lib/week-plan.ts` — AsyncStorage | **Non** |
+| Ingrédients du frigo | `src/lib/fridge-store.ts` — AsyncStorage | **Non** |
+| Cache des recettes | `@tanstack/query-async-storage-persister` — AsyncStorage | **Non** |
 | Suggestion de recette | `src/lib/queries.ts` | Oui, **sur action explicite**, texte libre seul — ni nom, ni e-mail, ni identifiant d'appareil |
 
 Aucun SDK d'analyse, aucune publicité, aucun IDFA, aucun App Tracking Transparency,

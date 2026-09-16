@@ -25,7 +25,10 @@ Chaque case ne se coche qu'après vérification réelle, pas « ça devrait alle
 - [ ] Notifications push retirées *(si D-01)*
 - [ ] Espace admin retiré du build *(si D-02)*
 - [ ] `supportsTablet` cohérent avec la réalité *(D-03)*
-- [ ] Au moins **3 fonctions natives** livrées (hors ligne, liste de courses, mode cuisine)
+- [x] Au moins **3 fonctions natives** livrées — il y en a cinq : liste de courses,
+      **Frigo Magique** (`src/lib/fridge-match.ts`), **menu de la semaine**
+      (`src/lib/week-plan.ts`), **mode cuisson + minuteurs** (`src/screens/cooking-mode.tsx`),
+      **hors ligne complet** (cache persisté + jeu de recettes embarqué)
 - [ ] `ios.privacyManifests` déclaré dans `app.json` avec `CA92.1`
 - [ ] Lien « Politique de confidentialité » présent dans l'écran À propos
 - [ ] `npx tsc --noEmit` → aucune erreur
@@ -100,6 +103,11 @@ Chaque case ne se coche qu'après vérification réelle, pas « ça devrait alle
   - [ ] 6,5" (1284 × 2778) — obligatoire — au moins 3
   - [ ] 13" iPad *(uniquement si `supportsTablet: true`)*
 - [ ] Aucune capture ne contient une image tierce non autorisée (2.3.9)
+- [ ] **Les captures actuelles datent d'avant les quatre nouvelles fonctions.**
+      Elles restent valides (elles montrent des écrans réels, et le cadre du
+      téléphone masque la barre d'onglets), mais elles ne montrent ni le Frigo,
+      ni le Menu, ni le mode cuisson — soit les arguments les plus forts contre
+      un rejet 4.2. À refaire avant envoi si possible.
 
 ---
 
