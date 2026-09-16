@@ -67,22 +67,23 @@ export function AboutScreen() {
                 backgroundColor: theme.bgCard,
                 ...shadow(theme.shadowCard),
               }}>
-              <LinearGradient
-                colors={[theme.aboutGrad1, theme.aboutGrad2, theme.aboutGrad3]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={{ padding: spacing.group, alignItems: 'center' }}>
-                <View
-                  style={{
-                    width: '82%',
-                    aspectRatio: 1,
-                    borderRadius: radius.lg,
-                    borderCurve: 'continuous',
-                    backgroundColor: theme.bgCard,
-                    padding: 10,
-                    ...shadow(theme.shadowWarm),
-                  }}>
-                  {about.imageUrl ? (
+              {/* Sans photo, on garde le degrade de marque mais pas un cadre vide. */}
+              {about.imageUrl ? (
+                <LinearGradient
+                  colors={[theme.aboutGrad1, theme.aboutGrad2, theme.aboutGrad3]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{ padding: spacing.group, alignItems: 'center' }}>
+                  <View
+                    style={{
+                      width: '82%',
+                      aspectRatio: 1,
+                      borderRadius: radius.lg,
+                      borderCurve: 'continuous',
+                      backgroundColor: theme.bgCard,
+                      padding: 10,
+                      ...shadow(theme.shadowWarm),
+                    }}>
                     <Image
                       source={heroUrl(about.imageUrl, Math.round(width * 2))}
                       contentFit="cover"
@@ -90,9 +91,16 @@ export function AboutScreen() {
                       style={{ width: '100%', height: '100%', borderRadius: radius.md }}
                       accessibilityIgnoresInvertColors
                     />
-                  ) : null}
-                </View>
-              </LinearGradient>
+                  </View>
+                </LinearGradient>
+              ) : (
+                <LinearGradient
+                  colors={[theme.aboutGrad1, theme.aboutGrad2, theme.aboutGrad3]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{ height: 110 }}
+                />
+              )}
 
               <View style={{ padding: spacing.group, gap: spacing.row }}>
                 {about.badgeText ? (
