@@ -30,16 +30,17 @@ Valeurs prêtes à copier dans App Store Connect. Rédigées le 16 septembre 202
 ## Mots-clés (100 caractères max)
 
 ```
-recette,cuisine,carnet,maison,famille,courses,liste,libanais,plat,dessert,galerie
+recette,cuisine,maison,libanais,oriental,courses,liste,plat,dessert,carnet,facile
 ```
 
-88 caractères. Aucune marque tierce, aucun nom de concurrent, aucun prix — conforme 2.3.7 et 5.6.3.
+81 caractères. Aucune marque tierce, aucun nom de concurrent, aucun prix — conforme 2.3.7 et 5.6.3.
 
 ## Description
 
 ```
-Akel Loulou, c'est le carnet de recettes d'une famille — celles qu'on se
-transmet, qu'on refait le dimanche, et qu'on finit toujours par demander.
+Akel Loulou réunit des recettes maison — celles qu'on teste, qu'on refait, et
+qu'on finit toujours par se faire demander. Cuisine libanaise et orientale,
+plats du quotidien, desserts : tout est cuisiné et photographié pour de vrai.
 
 CHAQUE RECETTE, EN ENTIER
 Les ingrédients illustrés un par un, les épices, le matériel, et les étapes
@@ -50,14 +51,17 @@ Un appui sur le panier verse tous les ingrédients d'une recette dans votre
 liste. Cochez au fur et à mesure dans les rayons, regroupé par plat. Partagez-la
 en un geste.
 
-VOS FAVORIS, LA GALERIE
-Marquez ce que vous aimez. Retrouvez toutes les photos des plats au même endroit.
-Une envie particulière ? Filtrez par plat, dessert, pays ou tag, ou cherchez
-directement par ingrédient — le titre, la description et la liste des courses
-sont fouillés en même temps.
+TROUVEZ CE DONT VOUS AVEZ ENVIE
+Cherchez par ingrédient — « courgette », « chocolat » — et l'app fouille les
+titres, les descriptions et les listes d'ingrédients en même temps. Filtrez par
+plat, dessert, pays ou tag. Marquez vos favoris.
 
-PROPOSEZ VOS RECETTES
-Une idée, un plat de famille ? Envoyez-la nous directement depuis l'application.
+LA GALERIE
+Toutes les photos des plats au même endroit. Touchez-en une pour ouvrir la
+recette correspondante.
+
+PROPOSEZ UNE RECETTE
+Une idée, une envie ? Envoyez-la directement depuis l'application.
 
 Pas de compte à créer. Pas de publicité. Pas de suivi. Aucune donnée
 personnelle collectée.
@@ -92,8 +96,9 @@ explicite de la personne, sans nom ni identifiant joint.
 ```
 Bonjour,
 
-Akel Loulou est le carnet de recettes de notre famille. Les recettes, les
-photos et les textes sont les nôtres.
+Akel Loulou est une application de recettes de cuisine maison. Les recettes,
+les photos et les textes sont produits par nos soins : rien n'est repris
+d'une source tierce.
 
 • Aucun compte n'est nécessaire. Toutes les fonctionnalités sont accessibles
   dès le lancement. Aucun identifiant de démonstration n'est donc requis.
