@@ -30,10 +30,10 @@ Valeurs prêtes à copier dans App Store Connect. Rédigées le 16 septembre 202
 ## Mots-clés (100 caractères max)
 
 ```
-recette,cuisine,carnet,maison,famille,courses,liste,libanais,plat,dessert,cuisson,minuteur
+recette,cuisine,carnet,maison,famille,courses,liste,libanais,plat,dessert,galerie
 ```
 
-90 caractères. Aucune marque tierce, aucun nom de concurrent, aucun prix — conforme 2.3.7 et 5.6.3.
+88 caractères. Aucune marque tierce, aucun nom de concurrent, aucun prix — conforme 2.3.7 et 5.6.3.
 
 ## Description
 
@@ -50,19 +50,14 @@ Un appui sur le panier verse tous les ingrédients d'une recette dans votre
 liste. Cochez au fur et à mesure dans les rayons, regroupé par plat. Partagez-la
 en un geste.
 
-LE MODE CUISSON
-Une étape à la fois, en grand caractère, l'écran reste allumé pendant que vous
-cuisinez. Les durées citées dans la recette deviennent des minuteurs : un appui
-et c'est lancé.
-
-MÊME SANS RÉSEAU
-Une fois les recettes chargées, tout reste consultable hors ligne. Pratique en
-cuisine, en vacances, ou dans un magasin sans signal.
-
 VOS FAVORIS, LA GALERIE
 Marquez ce que vous aimez. Retrouvez toutes les photos des plats au même endroit.
 Une envie particulière ? Filtrez par plat, dessert, pays ou tag, ou cherchez
-directement par ingrédient.
+directement par ingrédient — le titre, la description et la liste des courses
+sont fouillés en même temps.
+
+PROPOSEZ VOS RECETTES
+Une idée, un plat de famille ? Envoyez-la nous directement depuis l'application.
 
 Pas de compte à créer. Pas de publicité. Pas de suivi. Aucune donnée
 personnelle collectée.
@@ -105,10 +100,6 @@ photos et les textes sont les nôtres.
 • Aucun achat intégré, aucune publicité, aucun outil de mesure d'audience,
   aucun suivi. Aucune donnée personnelle n'est collectée.
 • Les favoris et la liste de courses sont stockés uniquement sur l'appareil.
-• L'application fonctionne hors ligne après le premier lancement : les recettes
-  consultées restent disponibles sans réseau.
-• Le mode cuisson maintient l'écran allumé pendant la préparation et propose
-  des minuteurs détectés dans le texte des étapes.
 • Le formulaire « Proposer une recette » nous envoie un texte libre, en privé.
   Il n'est jamais republié ni montré à d'autres utilisateurs : il n'y a ni
   profils, ni messagerie, ni contenu public entre personnes.
@@ -123,20 +114,19 @@ Merci pour votre lecture.
 
 ## Captures d'écran
 
-Dans `store-screenshots/`, au format **1320 × 2868 (6,9")** :
+Dans `store-screenshots/6.9/` (**1320 × 2868**) et `store-screenshots/6.5/` (**1284 × 2778**) :
 
 | Fichier | Accroche | Écran |
 |---|---|---|
 | `01_accueil.png` | Tout ton carnet **de recettes** | Liste + filtres |
 | `02_recette.png` | Chaque ingrédient **en image** | Fiche recette |
-| `03_preparation.png` | Les étapes, **une par une** | Préparation |
+| `03_preparation.png` | Les étapes, **une par une** | Préparation (fiche recette) |
 | `04_filtres.png` | Filtre par pays, **par envie** | Recherche |
 | `05_galerie.png` | Toutes tes photos **au même endroit** | Galerie |
 
 ⚠️ **Deux réserves :**
 
-1. Les captures affichent **« 27 RECETTES »** alors que l'app en montre **18** depuis
-   le masquage des 11 plats sans photo. À regénérer une fois les photos faites,
-   sinon il y a un écart entre la capture et l'app (2.3.3).
-2. Le format **6,5" (1284 × 2778)** n'est pas encore produit. App Store Connect
-   l'exige en plus du 6,9".
+1. Les captures affichent **« 27 RECETTES »**, l'app en montre **29** depuis la
+   restauration des 11 plats. Écart mineur mais réel (2.3.3) : à regénérer une
+   fois les nouvelles photos en place — le script est prêt.
+2. Les deux formats exigés par App Store Connect sont produits.

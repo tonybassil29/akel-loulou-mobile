@@ -9,10 +9,7 @@ import {
   DMSans_600SemiBold,
   DMSans_700Bold,
 } from '@expo-google-fonts/dm-sans';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
-import { QueryClient } from '@tanstack/react-query';
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import { Stack } from 'expo-router/stack';
@@ -28,23 +25,9 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 2 * 60 * 1000,
-      // Le cache doit survivre a la fermeture de l'app pour que le mode hors
-      // ligne ait quelque chose a afficher : 7 jours.
-      gcTime: 7 * 24 * 60 * 60 * 1000,
       retry: 2,
-      networkMode: 'offlineFirst',
     },
   },
-});
-
-/**
- * Le cache des requetes est ecrit sur le disque. Consequence : apres un premier
- * lancement en ligne, l'app affiche les recettes, les photos deja vues et la
- * page A propos meme en mode avion.
- */
-const persister = createAsyncStoragePersister({
-  storage: AsyncStorage,
-  key: 'akel-loulou.query-cache',
 });
 
 export default function RootLayout() {
@@ -71,9 +54,7 @@ export default function RootLayout() {
     : { ...DefaultTheme, colors: { ...DefaultTheme.colors, background: palette.light.bgMain } };
 
   return (
-    <PersistQueryClientProvider
-      client={queryClient}
-      persistOptions={{ persister, maxAge: 7 * 24 * 60 * 60 * 1000 }}>
+    <QueryClientProvider client={queryClient}>
       <ThemeProvider value={navigationTheme}>
         <Stack
           screenOptions={{
@@ -82,7 +63,6 @@ export default function RootLayout() {
           }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="recipe/[id]" />
-          <Stack.Screen name="cook/[id]" options={{ presentation: 'fullScreenModal' }} />
           <Stack.Screen
             name="suggest"
             options={{
@@ -96,6 +76,6 @@ export default function RootLayout() {
           />
         </Stack>
       </ThemeProvider>
-    </PersistQueryClientProvider>
+    </QueryClientProvider>
   );
 }
