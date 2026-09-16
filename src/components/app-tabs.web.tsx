@@ -12,6 +12,7 @@ import { useAppTheme } from '@/theme/use-app-theme';
  */
 const TABS: { name: string; href: string; label: string; icon: IconName }[] = [
   { name: 'index', href: '/', label: 'Recettes', icon: icons.bookmark },
+  { name: 'shopping', href: '/shopping', label: 'Courses', icon: icons.cart },
   { name: 'gallery', href: '/gallery', label: 'Galerie', icon: icons.photo },
   { name: 'about', href: '/about', label: 'À propos', icon: icons.heart },
 ];

@@ -133,68 +133,14 @@ export const useCustomIngredientImages = () =>
 
 export function useSendSuggestion() {
   return useMutation({
-    mutationFn: async (payload: { title: string; description: string; author?: string }) => {
+    mutationFn: async (payload: { title: string; description: string }) => {
+      // Minimisation : on n'envoie que ce que la personne a volontairement ecrit,
+      // aucun identifiant ni nom (5.1.1(iii) Data Minimization).
       const { error } = await supabase.from('recipe_suggestions').insert({
         title: payload.title,
         description: payload.description,
-        author: payload.author || null,
       });
       if (error) throw new Error(error.message);
     },
-  });
-}
-
-export function useSuggestions() {
-  return useQuery({
-    queryKey: queryKeys.suggestions(),
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('recipe_suggestions')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (error) throw new Error(error.message);
-      return data ?? [];
-    },
-  });
-}
-
-// -------------------------------------------------------------- admin write
-
-export function useSaveRecipe() {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: async (recipe: Partial<Recipe> & { id?: string }) => {
-      const { data, error } = recipe.id
-        ? await supabase.from('recipes').update(recipe).eq('id', recipe.id).select().single()
-        : await supabase.from('recipes').insert(recipe).select().single();
-      if (error) throw new Error(error.message);
-      return data as Recipe;
-    },
-    onSuccess: () => {
-      client.invalidateQueries({ queryKey: ['recipes'] });
-      client.invalidateQueries({ queryKey: ['recipe'] });
-    },
-  });
-}
-
-export function useDeleteRecipe() {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from('recipes').delete().eq('id', id);
-      if (error) throw new Error(error.message);
-    },
-    onSuccess: () => client.invalidateQueries({ queryKey: ['recipes'] }),
-  });
-}
-
-export function useToggleRecipeHidden() {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ id, hidden }: { id: string; hidden: boolean }) => {
-      const { error } = await supabase.from('recipes').update({ hidden }).eq('id', id);
-      if (error) throw new Error(error.message);
-    },
-    onSuccess: () => client.invalidateQueries({ queryKey: ['recipes'] }),
   });
 }

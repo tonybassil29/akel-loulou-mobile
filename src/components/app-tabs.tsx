@@ -22,6 +22,14 @@ export default function AppTabs() {
       </NativeTabs.Trigger>
 
 
+      <NativeTabs.Trigger name="shopping">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'cart', selected: 'cart.fill' }}
+          md="shopping_cart"
+        />
+        <NativeTabs.Trigger.Label>Courses</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+
       <NativeTabs.Trigger name="gallery">
         <NativeTabs.Trigger.Icon
           sf={{ default: 'photo.on.rectangle', selected: 'photo.fill.on.rectangle.fill' }}

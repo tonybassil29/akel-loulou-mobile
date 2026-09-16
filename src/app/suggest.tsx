@@ -16,7 +16,6 @@ export default function SuggestScreen() {
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [author, setAuthor] = useState('');
   const [sent, setSent] = useState(false);
 
   const canSubmit = title.trim().length > 1 && !mutation.isPending;
@@ -26,7 +25,7 @@ export default function SuggestScreen() {
     // On ne ferme la feuille qu'apres un succes : sinon un echec reseau ferait
     // disparaitre le brouillon sans rien avoir envoye.
     mutation.mutate(
-      { title: title.trim(), description: description.trim(), author: author.trim() },
+      { title: title.trim(), description: description.trim() },
       { onSuccess: () => setSent(true) }
     );
   };
@@ -88,7 +87,6 @@ export default function SuggestScreen() {
           placeholder="Ce dont tu te souviens…"
           multiline
         />
-        <Field label="Ton prénom" value={author} onChangeText={setAuthor} placeholder="Facultatif" />
 
         {mutation.isError ? (
           <Text style={{ ...type.caption, color: '#E5484D' }}>

@@ -17,6 +17,7 @@ import { normalizeString, parseInstructions, scaleIngredient } from '@/lib/forma
 import { getIngredientImage, ingredientName } from '@/lib/ingredient-images';
 import { heroUrl, thumbUrl } from '@/lib/images';
 import { useCustomIngredientImages, useRecipe, useRecipes } from '@/lib/queries';
+import { useShoppingList } from '@/lib/shopping-list';
 import { spiceEmoji, spiceLabel } from '@/lib/spices';
 import type { Recipe } from '@/lib/types';
 import { brandGradient, fonts, radius, shadow, spacing, type } from '@/theme';
@@ -32,6 +33,8 @@ export function RecipeDetailScreen({ id }: { id: string }) {
   const { data: customImages = {} } = useCustomIngredientImages();
   const { data: allRecipes = [] } = useRecipes(true);
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { addMany } = useShoppingList();
+  const [addedToList, setAddedToList] = useState(false);
 
   const baseServings = recipe?.servings ?? 4;
   const [servings, setServings] = useState(baseServings);
@@ -90,23 +93,21 @@ export function RecipeDetailScreen({ id }: { id: string }) {
     });
   };
 
-  const shareShoppingList = async () => {
-    await Share.share({
-      title: 'Liste de courses',
-      message: [
-        '━━━━━━━━━━',
-        '\u{1F6D2} LISTE DE COURSES',
-        '━━━━━━━━━━',
-        '',
-        `\u{1F469}‍\u{1F373} Recette : ${recipe.title}`,
-        `\u{1F465} Portions : ${servings}`,
-        '',
-        '\u{1F4DD} INGRÉDIENTS :',
-        ...(recipe.ingredients ?? []).map((i) => `✅ ${scaleIngredient(i, factor)}`),
-        ...(recipe.spices ?? []).map((s) => `✅ ${spiceLabel(s)}`),
-        '━━━━━━━━━━',
-      ].join('\n'),
-    });
+  /** Verse les ingredients et les epices dans la liste de courses locale. */
+  const addToShoppingList = async () => {
+    const labels = [
+      ...(recipe.ingredients ?? []).map((i) => scaleIngredient(i, factor)),
+      ...(recipe.spices ?? []).map(spiceLabel),
+    ];
+    const added = await addMany(labels, recipe.id, recipe.title);
+    setAddedToList(true);
+    if (process.env.EXPO_OS === 'ios') {
+      Haptics.notificationAsync(
+        added > 0
+          ? Haptics.NotificationFeedbackType.Success
+          : Haptics.NotificationFeedbackType.Warning
+      );
+    }
   };
 
   return (
@@ -158,7 +159,12 @@ export function RecipeDetailScreen({ id }: { id: string }) {
             }}
           />
           <CircleAction label="Partager" icon={icons.share} onPress={shareRecipe} />
-          <CircleAction label="Liste de courses" icon={icons.cart} onPress={shareShoppingList} />
+          <CircleAction
+            label="Ajouter a la liste de courses"
+            icon={addedToList ? icons.checkmark : icons.cart}
+            filled={addedToList}
+            onPress={addToShoppingList}
+          />
         </View>
       </View>
 
@@ -304,6 +310,33 @@ export function RecipeDetailScreen({ id }: { id: string }) {
           {steps.length > 0 ? (
             <View style={{ gap: spacing.group }}>
               <SectionHeader title="Préparation" />
+
+              {/* Mode cuisson : une etape par ecran, ecran maintenu allume. */}
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Lancer le mode cuisson"
+                onPress={() =>
+                  router.push({ pathname: '/cook/[id]', params: { id: recipe.id } })
+                }
+                style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
+                <LinearGradient
+                  colors={brandGradient(theme)}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: spacing.sm,
+                    paddingVertical: 15,
+                    borderRadius: radius.pill,
+                  }}>
+                  <Icon name={icons.sparkles} size={15} color={theme.btnText} />
+                  <Text style={{ ...type.button, color: theme.btnText }}>
+                    Mode cuisson {'\u00b7'} {steps.length} étapes
+                  </Text>
+                </LinearGradient>
+              </Pressable>
               <View>
                 {steps.map((step, index) => (
                   <StepRow

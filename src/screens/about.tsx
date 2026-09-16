@@ -2,17 +2,19 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import { Linking, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, icons } from '@/components/icon';
 import { ErrorState, LoadingState } from '@/components/screen-state';
 import { SectionHeader } from '@/components/section-header';
 import { heroUrl } from '@/lib/images';
-import { usePushNotifications } from '@/lib/push';
 import { useAboutSettings, useRecipes } from '@/lib/queries';
 import { fonts, radius, shadow, spacing, type } from '@/theme';
 import { useAppTheme } from '@/theme/use-app-theme';
+
+/** Site public : politique de confidentialite et page de support. */
+const SITE_URL = 'https://laurecipe.akeloulou.workers.dev';
 
 export function AboutScreen() {
   const theme = useAppTheme();
@@ -21,7 +23,6 @@ export function AboutScreen() {
 
   const aboutQuery = useAboutSettings();
   const recipesQuery = useRecipes();
-  const push = usePushNotifications();
 
   const about = (aboutQuery.data ?? {}) as Record<string, string | undefined>;
   const recipeCount = (recipesQuery.data ?? []).filter((r) => r.category !== 'menu_only').length;
@@ -190,45 +191,49 @@ export function AboutScreen() {
               </View>
             ) : null}
 
+            {/* 5.1.1(i) : la politique de confidentialite doit etre atteignable
+                depuis l'app, pas seulement depuis la fiche App Store. */}
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: spacing.row,
+              }}>
+              <Pressable
+                accessibilityRole="link"
+                accessibilityLabel="Politique de confidentialité"
+                onPress={() => Linking.openURL(`${SITE_URL}/privacy.html`)}
+                style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
+                <Text style={{ ...type.caption, fontSize: 12.5, color: theme.accent }}>
+                  Confidentialité
+                </Text>
+              </Pressable>
+              <Text style={{ ...type.caption, color: theme.textPlaceholder }}>{'\u00b7'}</Text>
+              <Pressable
+                accessibilityRole="link"
+                accessibilityLabel="Support"
+                onPress={() => Linking.openURL(`${SITE_URL}/support.html`)}
+                style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
+                <Text style={{ ...type.caption, fontSize: 12.5, color: theme.accent }}>
+                  Support
+                </Text>
+              </Pressable>
+            </View>
+
+            <Text
+              style={{
+                ...type.caption,
+                color: theme.textPlaceholder,
+                textAlign: 'center',
+                paddingHorizontal: spacing.row,
+              }}>
+              Les recettes sont familiales : vérifiez toujours les allergènes et les
+              temps de cuisson selon votre matériel.
+            </Text>
+
             {/* --- actions --- */}
             <View style={{ gap: spacing.row }}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityState={{ disabled: !push.isSupported || push.status === 'enabled' }}
-                disabled={!push.isSupported || push.status === 'enabled'}
-                onPress={push.enable}
-                style={({ pressed }) => ({
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: spacing.row,
-                  paddingHorizontal: spacing.gutter,
-                  paddingVertical: spacing.gutter,
-                  borderRadius: radius.lg,
-                  borderCurve: 'continuous',
-                  borderWidth: 1,
-                  borderColor: theme.borderCard,
-                  backgroundColor: theme.bgCard,
-                  opacity: !push.isSupported ? 0.55 : pressed ? 0.8 : 1,
-                })}>
-                <Icon
-                  name={push.status === 'enabled' ? icons.checkmark : icons.sparkles}
-                  size={17}
-                  color={theme.accent}
-                />
-                <View style={{ flex: 1 }}>
-                  <Text style={{ ...type.bodySemi, color: theme.textMain }}>
-                    {push.status === 'enabled'
-                      ? 'Notifications activées'
-                      : 'Recevoir la recette du jour'}
-                  </Text>
-                  {push.message ? (
-                    <Text style={{ ...type.caption, fontSize: 12, color: theme.textPlaceholder }}>
-                      {push.message}
-                    </Text>
-                  ) : null}
-                </View>
-              </Pressable>
-
               <Link href="/suggest" asChild>
                 <Pressable
                   accessibilityRole="button"
@@ -249,24 +254,6 @@ export function AboutScreen() {
                 </Pressable>
               </Link>
 
-              <Link href="/admin" asChild>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Espace admin"
-                  style={({ pressed }) => ({
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: spacing.sm,
-                    paddingVertical: spacing.row,
-                    opacity: pressed ? 0.6 : 1,
-                  })}>
-                  <Icon name={icons.lock} size={12} color={theme.textPlaceholder} />
-                  <Text style={{ ...type.caption, fontSize: 12, color: theme.textPlaceholder }}>
-                    Espace admin
-                  </Text>
-                </Pressable>
-              </Link>
             </View>
           </>
         )}
