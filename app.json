@@ -1,0 +1,70 @@
+{
+  "expo": {
+    "name": "Akel Loulou",
+    "slug": "akel-loulou",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "akelloulou",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.akelloulou.recipes",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Akel Loulou a besoin d'acceder a tes photos pour illustrer une recette.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.akelloulou.recipes",
+      "adaptiveIcon": {
+        "backgroundColor": "#FDF6FB",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "output": "single",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FDF6FB",
+          "dark": {
+            "backgroundColor": "#14091A"
+          },
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 120
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Akel Loulou a besoin d'acceder a tes photos pour illustrer une recette."
+        }
+      ],
+      "expo-notifications",
+      "expo-font",
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "48a445ef-cc61-491c-b78a-bd07eba2de97"
+      }
+    }
+  }
+}
