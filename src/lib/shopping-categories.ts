@@ -1,4 +1,4 @@
-import { normalizeString } from './format';
+import { singularizePhrase } from './fridge-match';
 import { ingredientName } from './ingredient-images';
 
 /**
@@ -99,7 +99,7 @@ const AUTRES = AISLES[AISLES.length - 1];
  */
 const SORTED: readonly { word: string; aisleId: string }[] = Object.entries(KEYWORDS)
   .flatMap(([id, { words }]) =>
-    words.map((w) => ({ word: normalizeString(w), aisleId: id }))
+    words.map((w) => ({ word: singularizePhrase(w), aisleId: id }))
   )
   .sort((a, b) => b.word.length - a.word.length);
 
@@ -107,7 +107,9 @@ const byId = new Map(AISLES.map((a) => [a.id, a]));
 
 /** Le rayon d'un ingredient. Accepte un libelle brut, quantite comprise. */
 export function aisleOf(label: string): Aisle {
-  const text = normalizeString(ingredientName(label));
+  // Des deux cotes au singulier : sinon « petits pois (conserve) » ne trouve
+  // jamais le mot-cle « petit pois » et tombe dans « Autres ».
+  const text = singularizePhrase(ingredientName(label));
   if (!text) return AUTRES;
   const hit = SORTED.find(({ word }) => text.includes(word));
   return (hit && byId.get(hit.aisleId)) || AUTRES;
@@ -115,6 +117,6 @@ export function aisleOf(label: string): Aisle {
 
 /** L'eau ne s'achete pas : on ne la met jamais dans la liste de courses. */
 export function isWater(label: string): boolean {
-  const text = normalizeString(ingredientName(label));
+  const text = singularizePhrase(ingredientName(label));
   return text === 'eau' || text === 'eau froide' || text === 'eau chaude' || text === 'eau tiede';
 }

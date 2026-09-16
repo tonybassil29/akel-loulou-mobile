@@ -29,10 +29,15 @@ const PLURAL_EXCEPTIONS = new Set([
  * La base contient a la fois "oignon" et "oignons" : sans cette etape, ce sont
  * deux ingredients differents et le frigo rate la moitie des correspondances.
  */
-function singular(word: string): string {
+export function singular(word: string): string {
   return word.length > 3 && word.endsWith('s') && !PLURAL_EXCEPTIONS.has(word)
     ? word.slice(0, -1)
     : word;
+}
+
+/** Un libelle entier ramene au singulier, mot a mot, sans rien retirer d'autre. */
+export function singularizePhrase(text: string): string {
+  return normalizeString(text).split(/\s+/).map(singular).join(' ');
 }
 
 /** Les mots porteurs de sens d'un libelle : "200 g de farine" -> {farine}. */

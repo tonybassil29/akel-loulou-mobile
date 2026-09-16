@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useState } from 'react';
 
+import { singularizePhrase } from './fridge-match';
 import { ingredientName } from './ingredient-images';
-import { normalizeString } from './format';
 
 /**
  * Liste de courses. Elle vit uniquement sur l'appareil : c'est une note
@@ -45,7 +45,10 @@ async function write(items: ShoppingItem[]) {
   }
 }
 
-const makeId = (label: string) => normalizeString(ingredientName(label)).replace(/\s+/g, '-');
+// Singularise : la base contient a la fois "Oignon" et "Oignons", et sans ca la
+// liste affichait les deux comme deux articles distincts — criant des que le
+// menu de la semaine agrege plusieurs recettes.
+const makeId = (label: string) => singularizePhrase(ingredientName(label)).replace(/\s+/g, '-');
 
 export function useShoppingList() {
   const [items, setItems] = useState<ShoppingItem[] | null>(cache);
