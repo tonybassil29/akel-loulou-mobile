@@ -34,18 +34,26 @@ navigation sont justes. C'est **l'habillage** qui doit changer.
 - **Les 5 onglets restent** : Recettes · Frigo · Menu · Courses · Galerie.
 - **Thème clair et thème sombre.** Le sombre actuel s'appelle « Onyx &
   Champagne » — accent `#E8A87C` sur fond `#0E1116`. Propose les deux.
-- **Cible iOS 16.4 minimum.** Tout effet qui exige plus récent doit avoir un
-  repli propre, et tu le signales.
+- **Vise iOS 26.** C'est l'OS courant, celui de mon iPhone. Le plancher de
+  compatibilité de l'app est iOS 16.4, donc chaque effet propre à iOS 26 doit
+  avoir un repli que tu décris — mais c'est bien le rendu iOS 26 que je veux
+  voir sur les maquettes, pas le plus petit dénominateur commun.
 
 ## Ce que je veux voir
 
-Une app qui a l'air **conçue pour iOS**, pas portée depuis un site. Inspire-toi
-des idiomes système que les vraies apps Apple utilisent :
+Une app qui a l'air **conçue pour iOS 26**, pas portée depuis un site.
+Inspire-toi du langage visuel du système tel qu'il est aujourd'hui :
 
-- **Grands titres** qui se contractent au défilement, avec la barre de
-  navigation qui devient translucide.
-- **Matériaux translucides** plutôt que des aplats : barre d'onglets, en-têtes,
-  feuilles. Les flous doivent laisser deviner le contenu qui passe dessous.
+- **Liquid Glass.** C'est le cœur d'iOS 26 : des surfaces qui réfractent et
+  reflètent ce qui passe dessous au lieu de simplement le flouter, avec une
+  bordure spéculaire qui capte la lumière. Barre d'onglets, en-têtes, feuilles,
+  boutons flottants. Attention à la lisibilité : le verre ne doit jamais rendre
+  un texte difficile à lire sur une photo de plat.
+- **Barre d'onglets qui se rétracte au défilement** et se redéploie quand on
+  remonte — l'app l'active déjà (`minimizeBehavior="onScrollDown"`).
+- **Effet de bord au défilement** : le contenu se dissout progressivement sous
+  les barres translucides plutôt que de passer sous un aplat net.
+- **Grands titres** qui se contractent au défilement.
 - **Feuilles à paliers** (`detents`) pour le sélecteur de recette du Menu et les
   filtres, avec une poignée et un fond qui respire.
 - **SF Symbols** partout où c'est possible, avec leurs variantes pleines/vides
@@ -64,7 +72,7 @@ partout, une grille compressée, ou un style « template » interchangeable.
 
 ## Les écrans à livrer
 
-Format **393 × 852** (iPhone 15/16), thème clair **et** thème sombre.
+Format **393 × 852**, thème clair **et** thème sombre.
 
 | Écran | Ce qu'il montre |
 |---|---|
@@ -98,8 +106,13 @@ react-native-reanimated  animations
 expo-haptics             retours haptiques
 ```
 
-`expo-blur` et `expo-glass-effect` **ne sont pas installés** — si ta maquette en
-dépend, dis-le explicitement, je les ajouterai.
+`expo-glass-effect` et `expo-blur` **ne sont pas encore installés**. Pour une
+refonte Liquid Glass, `expo-glass-effect` est le module attendu : prends pour
+acquis que je l'ajouterai, mais dis-moi précisément où tu t'en sers et à quoi
+ressemble l'écran sur un iPhone qui ne l'a pas.
+
+Le plancher de l'app est **iOS 16.4** : sur les versions antérieures à 26, le
+verre doit dégrader vers un matériau translucide classique, et rester lisible.
 
 Tout ce qui n'est pas réalisable avec ces briques doit être signalé, avec le
 repli que tu proposes. Une maquette magnifique mais impossible à porter ne me
