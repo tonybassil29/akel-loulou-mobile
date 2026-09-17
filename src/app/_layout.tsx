@@ -91,6 +91,27 @@ export default function RootLayout() {
           <Stack.Screen name="recipe/[id]" />
           <Stack.Screen name="about" />
           <Stack.Screen name="cook/[id]" options={{ presentation: 'fullScreenModal' }} />
+          {/* Feuilles natives : des ecrans empiles, pas des vues superposees.
+              Les feuilles `@expo/ui` affichaient leur contenu mais aucune
+              ligne ne recevait le toucher. */}
+          <Stack.Screen
+            name="filtre/[type]"
+            options={{
+              presentation: 'formSheet',
+              headerShown: true,
+              sheetGrabberVisible: true,
+              sheetAllowedDetents: [0.55, 1],
+            }}
+          />
+          <Stack.Screen
+            name="menu/pick"
+            options={{
+              presentation: 'formSheet',
+              headerShown: true,
+              sheetGrabberVisible: true,
+              sheetAllowedDetents: [0.7, 1],
+            }}
+          />
           <Stack.Screen
             name="suggest"
             options={{

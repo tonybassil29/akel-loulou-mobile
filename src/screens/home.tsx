@@ -14,12 +14,12 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Chip } from '@/components/chip';
-import { FilterSheet } from '@/components/filter-sheet';
 import { Icon, icons } from '@/components/icon';
 import { RecipeCard } from '@/components/recipe-card';
 import { EmptyState, ErrorState, LoadingState } from '@/components/screen-state';
 import { normalizeCountryName, normalizeString } from '@/lib/format';
 import { useFavorites } from '@/lib/favorites';
+import { useHomeFilters } from '@/lib/home-filters';
 import { useHeaderSettings, useRecipes } from '@/lib/queries';
 import type { Recipe } from '@/lib/types';
 import { radius, shadow, spacing, type } from '@/theme';
@@ -33,6 +33,9 @@ export function HomeScreen() {
   const theme = useAppTheme();
   const router = useRouter();
 
+  // Les filtres pays et tag vivent hors du composant : la feuille de
+  // selection est un ecran empile, elle ne peut rien renvoyer ici.
+  const { country, tag, set: setFilter, reset: resetFilters } = useHomeFilters();
   const isRestoring = useIsRestoring();
   const recipesQuery = useRecipes();
   const { data: header } = useHeaderSettings();
@@ -40,9 +43,6 @@ export function HomeScreen() {
 
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<CategoryFilter>('all');
-  const [country, setCountry] = useState('all');
-  const [tag, setTag] = useState('all');
-  const [openSheet, setOpenSheet] = useState<'pays' | 'tags' | null>(null);
 
   // Les emojis des filtres viennent de settings.header, comme sur le site :
   // les changer sur le web les change ici aussi.
@@ -111,8 +111,7 @@ export function HomeScreen() {
 
   const reset = () => {
     setCategory('all');
-    setCountry('all');
-    setTag('all');
+    resetFilters();
     setSearch('');
   };
 
@@ -242,7 +241,7 @@ export function HomeScreen() {
                   trailing={'▾'}
                   tone="accent"
                   selected={country !== 'all'}
-                  onPress={() => setOpenSheet('pays')}
+                  onPress={() => router.push({ pathname: '/filtre/[type]', params: { type: 'pays' } })}
                 />
               ) : null}
               {tags.length > 0 ? (
@@ -252,7 +251,7 @@ export function HomeScreen() {
                   trailing={'▾'}
                   tone="accent"
                   selected={tag !== 'all'}
-                  onPress={() => setOpenSheet('tags')}
+                  onPress={() => router.push({ pathname: '/filtre/[type]', params: { type: 'tags' } })}
                 />
               ) : null}
             </View>
@@ -298,26 +297,6 @@ export function HomeScreen() {
         )}
       />
 
-      <FilterSheet
-        isPresented={openSheet === 'pays'}
-        onDismiss={() => setOpenSheet(null)}
-        title="Filtrer par pays"
-        allLabel="Tous les pays"
-        options={countries}
-        selected={country}
-        onSelect={setCountry}
-        withFlags
-      />
-      <FilterSheet
-        isPresented={openSheet === 'tags'}
-        onDismiss={() => setOpenSheet(null)}
-        title="Filtrer par tag"
-        allLabel="Tous les tags"
-        options={tags}
-        selected={tag}
-        onSelect={setTag}
-        prefix="#"
-      />
     </>
   );
 }

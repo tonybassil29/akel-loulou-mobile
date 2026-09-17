@@ -7,7 +7,6 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, icons } from '@/components/icon';
-import { RecipePickerSheet } from '@/components/recipe-picker-sheet';
 import { EmptyState, ErrorState, LoadingState } from '@/components/screen-state';
 import { thumbUrl } from '@/lib/images';
 import { useRecipes } from '@/lib/queries';
@@ -32,7 +31,6 @@ export function WeekPlanScreen() {
   const { plan, add, remove, clear, mealCount } = useWeekPlan();
   const { addMany } = useShoppingList();
 
-  const [picker, setPicker] = useState<{ day: number; slot: MealSlot } | null>(null);
   const [status, setStatus] = useState<string | null>(null);
 
   const recipes = recipesQuery.data ?? [];
@@ -83,10 +81,6 @@ export function WeekPlanScreen() {
 
   const isHydrating = isRestoring || recipesQuery.isLoading || plan === null;
 
-  const pickerRecipes = useMemo(
-    () => [...recipes].sort((a, b) => a.title.localeCompare(b.title)),
-    [recipes]
-  );
 
   return (
     <>
@@ -221,7 +215,10 @@ export function WeekPlanScreen() {
                           accessibilityLabel={`Ajouter une recette — ${dayLabel} ${label}`}
                           onPress={() => {
                             setStatus(null);
-                            setPicker({ day, slot });
+                            router.push({
+                              pathname: '/menu/pick',
+                              params: { day: String(day), slot },
+                            });
                           }}
                           style={({ pressed }) => ({
                             width: 28,
@@ -260,19 +257,6 @@ export function WeekPlanScreen() {
         )}
       </ScrollView>
 
-      <RecipePickerSheet
-        isPresented={picker !== null}
-        onDismiss={() => setPicker(null)}
-        title={
-          picker
-            ? `${DAYS[picker.day]} · ${SLOTS.find((s) => s.id === picker.slot)?.label ?? ''}`
-            : ''
-        }
-        recipes={pickerRecipes}
-        onSelect={(recipe) => {
-          if (picker) add(picker.day, picker.slot, recipe.id);
-        }}
-      />
     </>
   );
 }

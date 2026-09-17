@@ -74,7 +74,9 @@ export function RecipeDetailScreen({ id }: { id: string }) {
   const isDessert = recipe.category === 'dessert';
   const flag = flagUrl(recipe.country, 80);
   const heroHeight = width * 0.78;
-  const tileWidth = (width - spacing.gutter * 2 - spacing.row * 2) / 3;
+  // Quatre par ligne : les vignettes a trois etaient trop grosses et une seule
+  // rangee mangeait la moitie de l'ecran.
+  const tileWidth = (width - spacing.gutter * 2 - spacing.sm * 3) / 4;
 
   const shareRecipe = async () => {
     await Share.share({
@@ -244,7 +246,7 @@ export function RecipeDetailScreen({ id }: { id: string }) {
           {(recipe.ingredients ?? []).length > 0 ? (
             <View style={{ gap: spacing.group }}>
               <SectionHeader title="Ingrédients" />
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.row }}>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
                 {recipe.ingredients.map((ingredient, index) => (
                   <IngredientTile
                     key={`${ingredient}-${index}`}
@@ -272,7 +274,7 @@ export function RecipeDetailScreen({ id }: { id: string }) {
           {(recipe.equipment ?? []).length > 0 ? (
             <View style={{ gap: spacing.group }}>
               <SectionHeader title="Matériel" />
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.row }}>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
                 {recipe.equipment.map((item) => (
                   <View key={item.name} style={{ width: tileWidth, gap: spacing.sm }}>
                     <View
@@ -292,10 +294,10 @@ export function RecipeDetailScreen({ id }: { id: string }) {
                       />
                     </View>
                     <Text
-                      numberOfLines={2}
+                      numberOfLines={3}
                       style={{
                         ...type.bodySemi,
-                        fontSize: 13.5,
+                        fontSize: 11.5,
                         color: theme.textMain,
                         textAlign: 'center',
                       }}>
@@ -534,10 +536,10 @@ function IngredientTile({
 
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 3 }}>
         <Text
-          numberOfLines={2}
+          numberOfLines={3}
           style={{
             ...type.bodySemi,
-            fontSize: 13.5,
+            fontSize: 11.5,
             textAlign: 'center',
             color: linkedRecipe ? theme.accent : theme.textMain,
           }}>
