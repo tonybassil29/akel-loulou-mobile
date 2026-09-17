@@ -4,7 +4,7 @@ Valeurs prêtes à copier dans App Store Connect. Rédigées le 16 septembre 202
 
 | | |
 |---|---|
-| **Apple Team ID** | `G67U5SNR8X` |
+| **Apple Team ID** | `58D7WWSVBF` |
 | **Bundle ID** | `com.akelloulou.recipes` |
 | **EAS Project** | `@tonybueno/akel-loulou` — `48a445ef-cc61-491c-b78a-bd07eba2de97` |
 | **Version** | 1.0.0 |

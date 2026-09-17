@@ -19,3 +19,6 @@ expo-env.d.ts
 # Cles privees App Store Connect — ne jamais commiter
 *.p8
 .secrets/
+
+# Contient le mot de passe du .p12 en clair
+credentials.json

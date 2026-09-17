@@ -6,16 +6,15 @@ REM  A lancer depuis PowerShell ou l'invite de commandes Windows, PAS depuis WSL
 REM      cd C:\Users\tonyb\Documents\AkelLoulou-mobile
 REM      scripts\build-ios.cmd
 REM
-REM  La toute premiere fois, EAS doit creer un certificat de distribution et un
-REM  profil de provisionnement chez Apple. Cette etape ne peut pas etre
-REM  automatisee : elle pose des questions. Reponds "Yes" a tout.
-REM  Les fois suivantes, tout passe sans question.
+REM  Le certificat de distribution et le profil de provisionnement existent deja :
+REM  ils ont ete crees directement via l'API Apple et sont references par
+REM  credentials.json. Le build ne pose donc aucune question.
 REM ---------------------------------------------------------------------------
 
 set EXPO_ASC_API_KEY_PATH=%~dp0..\.secrets\AuthKey_A476YC7FGM.p8
 set EXPO_ASC_KEY_ID=A476YC7FGM
 set EXPO_ASC_ISSUER_ID=e74a3f34-05de-4e28-8ccc-04b8534d6cbb
-set EXPO_APPLE_TEAM_ID=G67U5SNR8X
+set EXPO_APPLE_TEAM_ID=58D7WWSVBF
 set EAS_BUILD_NO_EXPO_GO_WARNING=true
 
 echo.
