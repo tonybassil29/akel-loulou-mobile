@@ -7,11 +7,10 @@
     "icon": "./assets/images/icon.png",
     "scheme": "akelloulou",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.akelloulou.recipes",
-      "deploymentTarget": "16.0",
+      "deploymentTarget": "16.4",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
