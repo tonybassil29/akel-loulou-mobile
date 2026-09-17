@@ -22,3 +22,6 @@ expo-env.d.ts
 
 # Contient le mot de passe du .p12 en clair
 credentials.json
+
+# Livraisons Claude Design
+*.zip
