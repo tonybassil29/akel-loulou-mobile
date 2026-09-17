@@ -13,3 +13,11 @@
   etre portes par un conteneur parent, pas par le `Pressable` enfant.
 - Verifier avec `npx tsc --noEmit` puis `npx expo export --platform ios`.
 - Sous Windows : lancer npm / expo depuis PowerShell, pas WSL.
+
+## Reprise sur macOS
+
+Si tu lis ceci depuis un Mac, commence par `PASSATION_MAC.md` : état complet du
+dossier, ce qui reste à faire, les pièges déjà rencontrés et les commandes.
+
+La priorité absolue est de **lancer l'app sur un appareil** (`npx expo run:ios`) :
+le binaire est chez Apple et validé, mais il n'a jamais été exécuté sur iOS.

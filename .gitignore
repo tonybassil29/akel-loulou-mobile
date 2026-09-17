@@ -25,3 +25,6 @@ credentials.json
 
 # Livraisons Claude Design
 *.zip
+
+# Archive de transfert des secrets — ne jamais commiter
+akel-loulou-secrets.tar.gz
