@@ -26,7 +26,8 @@
         "ascApiKeyPath": "./.secrets/AuthKey_A476YC7FGM.p8",
         "ascApiKeyId": "A476YC7FGM",
         "ascApiKeyIssuerId": "e74a3f34-05de-4e28-8ccc-04b8534d6cbb",
-        "appleTeamId": "58D7WWSVBF"
+        "appleTeamId": "58D7WWSVBF",
+        "ascAppId": "6812901310"
       }
     }
   }
