@@ -1,0 +1,95 @@
+# Build iOS + envoi TestFlight, sur une machine macOS de GitHub.
+#
+# Pourquoi ce fichier existe : compiler pour iPhone exige macOS, et le compte
+# Expo a epuise ses builds cloud gratuits du mois. `eas build --local` compile
+# ici, sur le runner, sans toucher au quota Expo. Le depot etant public, les
+# minutes macOS de GitHub sont gratuites.
+#
+# Declenchement manuel uniquement : les secrets de signature ne doivent jamais
+# etre exposes a un workflow venu d'un fork.
+
+name: iOS → TestFlight
+
+on:
+  workflow_dispatch:
+    inputs:
+      envoyer_testflight:
+        description: "Envoyer le binaire vers TestFlight une fois compile"
+        type: boolean
+        default: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Installer les dependances
+        run: npm ci
+
+      - name: Restaurer les identifiants de signature
+        env:
+          P12: ${{ secrets.IOS_DIST_P12_BASE64 }}
+          P12_MDP: ${{ secrets.IOS_DIST_P12_PASSWORD }}
+          PROFIL: ${{ secrets.IOS_PROFILE_BASE64 }}
+          ASC_KEY: ${{ secrets.ASC_API_KEY_BASE64 }}
+        run: |
+          mkdir -p .secrets
+          printf '%s' "$P12"     | base64 --decode > .secrets/akel-dist.p12
+          printf '%s' "$PROFIL"  | base64 --decode > .secrets/akel-appstore.mobileprovision
+          printf '%s' "$ASC_KEY" | base64 --decode > .secrets/AuthKey_A476YC7FGM.p8
+          # credentials.json est gitignore : on le reconstruit ici
+          node -e '
+            const fs = require("fs");
+            fs.writeFileSync("credentials.json", JSON.stringify({
+              ios: {
+                provisioningProfilePath: ".secrets/akel-appstore.mobileprovision",
+                distributionCertificate: {
+                  path: ".secrets/akel-dist.p12",
+                  password: process.env.P12_MDP,
+                },
+              },
+            }, null, 2));
+          '
+          echo "Identifiants en place."
+
+      - name: Compiler le binaire iOS
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EAS_BUILD_NO_EXPO_GO_WARNING: "true"
+        run: |
+          npx eas-cli@latest build \
+            --platform ios \
+            --profile production \
+            --local \
+            --non-interactive \
+            --output "$RUNNER_TEMP/akel-loulou.ipa"
+
+      - name: Conserver le binaire
+        uses: actions/upload-artifact@v4
+        with:
+          name: akel-loulou-ipa
+          path: ${{ runner.temp }}/akel-loulou.ipa
+          retention-days: 30
+
+      - name: Envoyer vers TestFlight
+        if: ${{ inputs.envoyer_testflight }}
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          npx eas-cli@latest submit \
+            --platform ios \
+            --profile production \
+            --path "$RUNNER_TEMP/akel-loulou.ipa" \
+            --non-interactive
+
+      - name: Effacer les identifiants
+        if: always()
+        run: rm -rf .secrets credentials.json
