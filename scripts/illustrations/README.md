@@ -38,6 +38,16 @@ deux côtés, sans redéploiement.
 
 ## Ingrédients encore sans visuel
 
-farine · sucre · sucre glace · cassonade · beurre · beurre de cacahuète ·
-huile · miel · sel · poivre · cacao · moutarde · vinaigre · bouillon · riz ·
-pâtes · maïzena · bicarbonate · eau · parmesan · vin blanc
+Aucun : les 171 ingrédients des 29 recettes affichent tous une image.
+
+## Vignettes encore imparfaites
+
+Trois clés pointent vers un texte de remplacement hérité (un code de deux
+lettres sur fond blanc), faute de photo disponible :
+
+- `Cannelle`
+- `Chipotle`
+- `Pousse de soja`
+
+Ce ne sont pas des marques, juste des images cassées d'origine. Il suffit de
+trois photos au même format pour les remplacer.
