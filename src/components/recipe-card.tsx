@@ -5,7 +5,6 @@ import { Link } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 
 import { Icon, icons } from './icon';
-import { flagUrl } from '@/lib/country';
 import { thumbUrl } from '@/lib/images';
 import type { Recipe } from '@/lib/types';
 import { radius, shadow, spacing, type } from '@/theme';
@@ -30,7 +29,6 @@ export function RecipeCard({
   width: number;
 }) {
   const theme = useAppTheme();
-  const flag = flagUrl(recipe.country, 40);
 
   return (
     <View style={{ width, flexGrow: 0, flexShrink: 0 }}>
@@ -91,22 +89,6 @@ export function RecipeCard({
                 color={isFavorite ? theme.btnText : theme.textSecondary}
               />
             </Pressable>
-
-            {flag ? (
-              <Image
-                source={flag}
-                contentFit="contain"
-                style={{
-                  position: 'absolute',
-                  bottom: spacing.row,
-                  left: spacing.row,
-                  width: 24,
-                  height: 16,
-                  borderRadius: 3,
-                }}
-                accessibilityIgnoresInvertColors
-              />
-            ) : null}
           </View>
 
           <View style={{ paddingHorizontal: 14, paddingVertical: 14 }}>

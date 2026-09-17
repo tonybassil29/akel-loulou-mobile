@@ -18,6 +18,7 @@ import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
 import { palette } from '@/theme';
@@ -82,6 +83,7 @@ export default function RootLayout() {
       client={queryClient}
       persistOptions={{ persister, maxAge: WEEK, buster: CACHE_BUSTER }}>
       <ThemeProvider value={navigationTheme}>
+        <StatusBar style={theme.isDark ? 'light' : 'dark'} />
         <Stack
           screenOptions={{
             headerShown: false,

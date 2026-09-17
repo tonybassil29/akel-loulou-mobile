@@ -1,6 +1,8 @@
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useIsRestoring } from '@tanstack/react-query';
+
+import { useApparence } from '@/lib/theme-preference';
 import { Link, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { Linking, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
@@ -253,6 +255,10 @@ export function AboutScreen() {
           </>
         )}
 
+        {/* Reglage d'apparence : l'app demarre toujours en clair, meme si le
+            telephone est en sombre. Le sombre se choisit ici. */}
+        <ApparenceRow />
+
         {/* Hors de la branche de chargement a dessein : meme hors ligne ou en
             erreur de reseau, la politique de confidentialite et le support
             doivent rester atteignables depuis l'app (5.1.1(i)). */}
@@ -307,5 +313,62 @@ function LegalLinks() {
         temps de cuisson selon votre matériel.
       </Text>
     </>
+  );
+}
+
+function ApparenceRow() {
+  const theme = useAppTheme();
+  const { apparence, choisir } = useApparence();
+
+  const options: { id: 'light' | 'dark'; label: string; emoji: string }[] = [
+    { id: 'light', label: 'Clair', emoji: '\u2600\ufe0f' },
+    { id: 'dark', label: 'Sombre', emoji: '\u{1F319}' },
+  ];
+
+  return (
+    <View style={{ gap: spacing.row }}>
+      <SectionHeader title="Apparence" />
+      <View
+        style={{
+          flexDirection: 'row',
+          gap: spacing.sm,
+          padding: spacing.xs,
+          borderRadius: radius.pill,
+          borderWidth: 1,
+          borderColor: theme.borderCard,
+          backgroundColor: theme.bgCard,
+        }}>
+        {options.map((option) => {
+          const actif = apparence === option.id;
+          return (
+            <Pressable
+              key={option.id}
+              accessibilityRole="button"
+              accessibilityState={{ selected: actif }}
+              onPress={() => choisir(option.id)}
+              style={({ pressed }) => ({
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: spacing.sm,
+                paddingVertical: 11,
+                borderRadius: radius.pill,
+                backgroundColor: actif ? theme.accent : 'transparent',
+                opacity: pressed ? 0.8 : 1,
+              })}>
+              <Text style={{ fontSize: 13 }}>{option.emoji}</Text>
+              <Text
+                style={{
+                  ...type.button,
+                  color: actif ? theme.btnText : theme.textSecondary,
+                }}>
+                {option.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
   );
 }

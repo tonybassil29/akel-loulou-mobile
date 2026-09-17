@@ -1,10 +1,14 @@
-import { useColorScheme } from 'react-native';
+import { useApparence } from '@/lib/theme-preference';
 
 import { palette, type BrandColors } from './index';
 
-/** La palette du mode courant — exactement les memes valeurs que le site. */
+/**
+ * La palette du mode courant.
+ *
+ * On ne lit volontairement pas `useColorScheme()` : l'app reste en clair meme
+ * si le telephone est en sombre, et le sombre se choisit depuis « A propos ».
+ */
 export function useAppTheme(): BrandColors & { isDark: boolean } {
-  const scheme = useColorScheme();
-  const isDark = scheme === 'dark';
-  return { ...palette[isDark ? 'dark' : 'light'], isDark };
+  const { estSombre } = useApparence();
+  return { ...palette[estSombre ? 'dark' : 'light'], isDark: estSombre };
 }

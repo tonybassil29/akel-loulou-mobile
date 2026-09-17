@@ -153,9 +153,12 @@ export function useSendSuggestion() {
     mutationFn: async (payload: { title: string; description: string }) => {
       // Minimisation : on n'envoie que ce que la personne a volontairement ecrit,
       // aucun identifiant ni nom (5.1.1(iii) Data Minimization).
+      // La colonne s'appelle `recipe_name` cote base — envoyer `title` faisait
+      // echouer chaque insertion en silence pour la personne qui suggerait.
+      // `user_name` reste vide : on ne demande aucune identite (5.1.1(iii)).
       const { error } = await supabase.from('recipe_suggestions').insert({
-        title: payload.title,
-        description: payload.description,
+        recipe_name: payload.title,
+        description: payload.description || null,
       });
       if (error) throw new Error(error.message);
     },

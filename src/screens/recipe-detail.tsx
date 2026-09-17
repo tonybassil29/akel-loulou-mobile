@@ -97,9 +97,10 @@ export function RecipeDetailScreen({ id }: { id: string }) {
 
   /** Verse les ingredients et les epices dans la liste de courses locale. */
   const addToShoppingList = async () => {
+    // Les epices ne vont pas dans les courses : on les a deja dans le placard,
+    // et elles noyaient la liste sous des lignes qu'on ne coche jamais.
     const labels = [
       ...(recipe.ingredients ?? []).map((i) => scaleIngredient(i, factor)),
-      ...(recipe.spices ?? []).map(spiceLabel),
     ];
     const added = await addMany(labels, recipe.id, recipe.title);
     setAddedToList(true);
@@ -279,6 +280,11 @@ export function RecipeDetailScreen({ id }: { id: string }) {
                   <View key={item.name} style={{ width: tileWidth, gap: spacing.sm }}>
                     <View
                       style={{
+                        // Le carre du materiel est plus petit que la cellule :
+                        // quatre par ligne, mais des vignettes discretes — ce
+                        // sont des ustensiles, pas le sujet de la page.
+                        width: '76%',
+                        alignSelf: 'center',
                         aspectRatio: 1,
                         borderRadius: radius.md,
                         borderCurve: 'continuous',
