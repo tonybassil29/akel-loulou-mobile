@@ -1,7 +1,6 @@
 # Prompt — refonte visuelle d'Akel Loulou
 
-> À coller dans Claude Design, en joignant le dépôt
-> `https://github.com/tonybassil29/akel-loulou-mobile`.
+> À coller tel quel dans Claude Design. Le lien du dépôt est dans le texte.
 
 ---
 
@@ -10,10 +9,13 @@ recettes de cuisine maison, déjà en production. Livre une **maquette**, pas du
 code d'application : des écrans HTML/CSS haute fidélité que je pourrai ensuite
 porter en React Native.
 
-## Lis d'abord le dépôt
+## Le dépôt
 
-- `src/theme/index.ts` — la charte actuelle, tous les jetons de couleur, la
-  typographie, les espacements, les rayons
+**https://github.com/tonybassil29/akel-loulou-mobile** — public, clone-le ou
+parcours-le en ligne. Lis ces fichiers avant de dessiner :
+
+- `src/theme/index.ts` — la charte actuelle : tous les jetons de couleur des
+  deux thèmes, la typographie, les espacements, les rayons, les ombres
 - `src/screens/` — les huit écrans à repenser
 - `src/components/` — carte recette, pilule de filtre, en-tête de section,
   feuille de filtres, états vides
