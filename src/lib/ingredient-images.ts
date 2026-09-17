@@ -35,7 +35,10 @@ const INGREDIENT_IMAGES: Record<string, string> = {
   "noisette": "https://www.themealdb.com/images/ingredients/Hazelnuts.png",
   "vin rouge": "https://www.themealdb.com/images/ingredients/Red%20Wine.png",
   "pomme de terre": "https://www.themealdb.com/images/ingredients/Potatoes.png",
-  "carotte": "https://www.themealdb.com/images/ingredients/Carrots.png"
+  "carotte": "https://www.themealdb.com/images/ingredients/Carrots.png",
+  "courgette": "https://www.themealdb.com/images/ingredients/Courgettes.png",
+  "lime": "https://www.themealdb.com/images/ingredients/Lime.png",
+  "spaghetti": "https://www.themealdb.com/images/ingredients/Spaghetti.png"
 };
 
 // Cles triees du plus long au plus court : "sucre glace" doit gagner sur "sucre".
@@ -81,9 +84,11 @@ export function getIngredientImage(
     if (lower.includes(key)) return INGREDIENT_IMAGES[key];
   }
 
-  if (name.length > 2) {
-    const formatted = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-    return `https://www.themealdb.com/images/ingredients/${encodeURIComponent(formatted)}.png`;
-  }
+  // Pas de repli qui devine une URL TheMealDB a partir du nom de l'ingredient :
+  // il ramenait des packshots de marque jamais relus (pot Dr. Oetker pour
+  // « peanut butter », barquette Casa Azzurra pour « mascarpone », sachet
+  // Sajari pour « cacao ») et, le reste du temps, des 404 qui s'affichaient en
+  // vignettes vides. Sans visuel verifie, on rend null : la tuile montre alors
+  // son icone neutre.
   return null;
 }
