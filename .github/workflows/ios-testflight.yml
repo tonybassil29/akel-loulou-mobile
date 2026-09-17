@@ -20,7 +20,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 90
 
     steps:
@@ -30,6 +30,18 @@ jobs:
         with:
           node-version: 20
           cache: npm
+
+      # React Native 0.86 distribue ReactNativeCore en paquet Swift precompile :
+      # Xcode 16.4 n'arrive pas a le resoudre (« Could not resolve package
+      # dependencies »). On prend donc systematiquement le Xcode le plus recent
+      # installe sur la machine, et on le trace dans le journal.
+      - name: Selectionner le Xcode le plus recent
+        run: |
+          ls -d /Applications/Xcode*.app
+          DERNIER=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
+          echo "Choisi : $DERNIER"
+          sudo xcode-select -s "$DERNIER"
+          xcodebuild -version
 
       - name: Installer les dependances
         run: npm ci
