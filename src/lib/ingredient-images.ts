@@ -54,7 +54,10 @@ const UNITS =
 
 const QUANTITY_PREFIX = new RegExp(
   "^(?:\\d+(?:[.,]\\d+)?(?:\\/\\d+)?(?:-\\d+)?|[\u00bd\u00bc\u00be\u2153\u2154])\\s*" +
-    "(?:(?:" + UNITS + ")\\b\\.?)?\\s*(?:de\\s|d')?\\s*",
+    "(?:(?:" + UNITS + ")\\b\\.?)?\\s*" +
+    // « 2 cuilleres a cafe de levure » : sans ca, le nom retenu etait
+    // « a cafe de levure » et aucune image ne correspondait.
+    "(?:\\u00e0\\s+(?:caf\\u00e9|soupe)\\s*)?\\s*(?:de\\s|d')?\\s*",
   "i"
 );
 
