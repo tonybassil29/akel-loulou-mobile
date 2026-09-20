@@ -56,6 +56,8 @@ export const icons = {
   plus: { sf: 'plus', md: 'add' },
   minus: { sf: 'minus', md: 'remove' },
   chevronRight: { sf: 'chevron.right', md: 'chevron-right' },
+  arrowUp: { sf: 'arrow.up', md: 'arrow-upward' },
+  chevronLeft: { sf: 'chevron.left', md: 'chevron-left' },
   globe: { sf: 'globe', md: 'public' },
   tag: { sf: 'number', md: 'tag' },
   filter: { sf: 'line.3.horizontal.decrease', md: 'filter-list' },

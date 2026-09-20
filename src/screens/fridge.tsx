@@ -1,264 +1,287 @@
-import { useIsRestoring } from '@tanstack/react-query';
-import { Stack } from 'expo-router/stack';
-import { useMemo, useState } from 'react';
+import { useRouter } from 'expo-router';
+import { useRef, useState } from 'react';
 import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
   Pressable,
   ScrollView,
   Text,
   TextInput,
   View,
-  useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Chip } from '@/components/chip';
 import { Icon, icons } from '@/components/icon';
-import { RecipeCard } from '@/components/recipe-card';
-import { EmptyState, ErrorState, LoadingState } from '@/components/screen-state';
-import { SectionHeader } from '@/components/section-header';
-import { useFavorites } from '@/lib/favorites';
-import { matchRecipes, suggestIngredients, type MatchResult } from '@/lib/fridge-match';
-import { useFridge } from '@/lib/fridge-store';
-import { ingredientName } from '@/lib/ingredient-images';
-import { useRecipes } from '@/lib/queries';
-import { radius, spacing, type } from '@/theme';
+import { type Echange, type Proposition, useFrigoIa } from '@/lib/frigo-ia';
+import { radius, shadow, spacing, type } from '@/theme';
 import { useAppTheme } from '@/theme/use-app-theme';
 
 /**
- * Frigo Magique : on declare ce qu'on a sous la main, l'app classe les recettes
- * par « ce qu'il reste a acheter ». Tout le calcul est local — aucune donnee ne
- * quitte l'appareil, aucun appel reseau supplementaire.
+ * Frigo IA : on ecrit ce qu'on a, en une phrase ; l'agent lit, cherche sur le
+ * web et propose des recettes qui n'utilisent QUE ca — plus les basiques du
+ * placard. Le calcul se fait sur le serveur (fonction Edge `frigo-ia`) : la cle
+ * d'API ne descend jamais sur le telephone. Cet ecran ne marche pas hors ligne.
  */
 export function FridgeScreen() {
   const theme = useAppTheme();
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
+  const router = useRouter();
+  const { echanges, demander, effacer } = useFrigoIa();
+  const [texte, setTexte] = useState('');
+  const defilement = useRef<ScrollView>(null);
 
-  const isRestoring = useIsRestoring();
-  const recipesQuery = useRecipes();
-  const { ingredients, add, remove, toggle, clear, has, count } = useFridge();
-  const { isFavorite, toggleFavorite } = useFavorites();
-  const [draft, setDraft] = useState('');
+  const enCours = echanges.some((e) => e.etat === 'en_cours');
 
-  // Les recettes `menu_only` n'ont pas d'etapes : les proposer ici menerait a
-  // une fiche sans preparation. L'accueil les ecarte deja de la meme facon.
-  const catalogue = useMemo(
-    () => (recipesQuery.data ?? []).filter((r) => r.category !== 'menu_only'),
-    [recipesQuery.data]
-  );
-
-  // Les ingredients les plus frequents du carnet, pour cocher au lieu de taper.
-  const suggestions = useMemo(() => suggestIngredients(catalogue, 24), [catalogue]);
-
-  const results = useMemo(
-    () => matchRecipes(ingredients ?? [], catalogue),
-    [ingredients, catalogue]
-  );
-
-  const groupes = useMemo(
-    () =>
-      [
-        { titre: 'Réalisable maintenant', items: results.filter((r) => r.missing.length === 0) },
-        {
-          titre: 'Il te manque peu',
-          items: results.filter((r) => r.missing.length > 0 && r.missing.length <= 2),
-        },
-        { titre: 'Plus loin', items: results.filter((r) => r.missing.length > 2) },
-      ].filter((g) => g.items.length > 0),
-    [results]
-  );
-
-  const cardWidth = (width - spacing.gutter * 2 - spacing.row) / 2;
-  const isHydrating = isRestoring || recipesQuery.isLoading || ingredients === null;
-
-  const ajouter = () => {
-    add(draft);
-    setDraft('');
+  const envoyer = () => {
+    const message = texte.trim();
+    if (message.length < 3 || enCours) return;
+    setTexte('');
+    demander(message);
+    setTimeout(() => defilement.current?.scrollToEnd({ animated: true }), 50);
   };
 
   return (
-    <>
-      <Stack.Screen options={{ headerShown: false }} />
-
+    <KeyboardAvoidingView
+      behavior={process.env.EXPO_OS === 'ios' ? 'padding' : undefined}
+      style={{ flex: 1, backgroundColor: theme.bgMain }}>
       <ScrollView
-        style={{ backgroundColor: theme.bgMain }}
+        ref={defilement}
+        style={{ flex: 1 }}
         contentContainerStyle={{
           paddingTop: insets.top + spacing.group,
           paddingHorizontal: spacing.gutter,
-          paddingBottom: spacing.section * 2,
+          paddingBottom: spacing.section,
           gap: spacing.group,
         }}
-        keyboardShouldPersistTaps="handled">
+        keyboardShouldPersistTaps="handled"
+        onContentSizeChange={() => defilement.current?.scrollToEnd({ animated: true })}>
         <View style={{ gap: spacing.row }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.row }}>
             <View style={{ width: 28, height: 1, backgroundColor: theme.accent }} />
-            <Text style={{ ...type.eyebrow, color: theme.accent }}>AKEL LOULOU</Text>
+            <Text style={{ ...type.eyebrow, flex: 1, color: theme.accent }}>AKEL LOULOU</Text>
+            {echanges.length > 0 ? (
+              <Pressable accessibilityRole="button" onPress={effacer} hitSlop={8}>
+                <Text style={{ ...type.caption, color: theme.textSecondary }}>Effacer</Text>
+              </Pressable>
+            ) : null}
           </View>
           <Text style={{ ...type.display, color: theme.textMain }}>
             Qu'est-ce{'\n'}qu'on cuisine ?
           </Text>
           <Text style={{ ...type.body, color: theme.textMuted }}>
-            Dis ce que tu as sous la main, on te dit ce que tu peux préparer.
+            Écris ce que tu as dans le frigo, en une phrase. Je cherche des recettes qui n'utilisent
+            que ça — et ce qu'on a toujours au placard : sel, huile, épices…
           </Text>
         </View>
 
-        {/* --- saisie libre --- */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
-          <View
-            style={{
-              flex: 1,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: spacing.sm,
-              paddingHorizontal: 16,
-              height: 46,
-              borderRadius: radius.pill,
-              borderWidth: 1,
-              borderColor: theme.borderInput,
-              backgroundColor: theme.bgInput,
-            }}>
-            <Icon name={icons.plus} size={15} color={theme.textPlaceholder} />
-            <TextInput
-              value={draft}
-              onChangeText={setDraft}
-              onSubmitEditing={ajouter}
-              placeholder="Ajouter un ingrédient…"
-              placeholderTextColor={theme.textPlaceholder}
-              autoCapitalize="none"
-              autoCorrect={false}
-              returnKeyType="done"
-              style={{
-                flex: 1,
-                fontFamily: type.body.fontFamily,
-                fontSize: 13.5,
-                color: theme.textMain,
-              }}
-            />
-          </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Ajouter au frigo"
-            accessibilityState={{ disabled: !draft.trim() }}
-            disabled={!draft.trim()}
-            onPress={ajouter}
-            style={({ pressed }) => ({
-              width: 46,
-              height: 46,
-              borderRadius: radius.pill,
-              backgroundColor: theme.accent,
-              alignItems: 'center',
-              justifyContent: 'center',
-              opacity: !draft.trim() ? 0.35 : pressed ? 0.8 : 1,
-            })}>
-            <Icon name={icons.checkmark} size={16} color={theme.btnText} />
-          </Pressable>
-        </View>
-
-        {/* --- ce qu'il y a dans le frigo --- */}
-        {count > 0 ? (
-          <View style={{ gap: spacing.row }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.row }}>
-              <Text style={{ ...type.eyebrow, flex: 1, color: theme.textSecondary }}>
-                {`DANS MON FRIGO · ${count}`}
-              </Text>
+        {echanges.length === 0 ? (
+          <View style={{ gap: spacing.sm }}>
+            {[
+              'J\'ai des pâtes, du riz, de la sauce tomate, du poulet et de la viande hachée',
+              'Il me reste 3 œufs, du fromage et des pommes de terre',
+              'Des bananes, du chocolat et de la farine',
+            ].map((ex) => (
               <Pressable
+                key={ex}
                 accessibilityRole="button"
-                accessibilityLabel="Vider le frigo"
-                onPress={clear}
-                style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
-                <Text style={{ ...type.caption, color: theme.textPlaceholder }}>Tout retirer</Text>
+                onPress={() => setTexte(ex)}
+                style={({ pressed }) => ({
+                  paddingHorizontal: spacing.row,
+                  paddingVertical: 10,
+                  borderRadius: radius.md,
+                  borderWidth: 1,
+                  borderColor: theme.borderCard,
+                  backgroundColor: pressed ? theme.bgHover : theme.bgCard,
+                })}>
+                <Text style={{ ...type.body, fontSize: 14, color: theme.textSecondary }}>{ex}</Text>
               </Pressable>
-            </View>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-              {(ingredients ?? []).map((item) => (
-                <Chip
-                  key={item}
-                  label={ingredientName(item)}
-                  trailing="×"
-                  selected
-                  tone="accent"
-                  onPress={() => remove(item)}
-                />
-              ))}
-            </View>
+            ))}
           </View>
         ) : null}
 
-        {/* --- suggestions a cocher --- */}
-        {suggestions.length > 0 ? (
-          <View style={{ gap: spacing.row }}>
-            <SectionHeader title="Les plus courants" />
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-              {suggestions
-                .filter((s) => !has(s))
-                .slice(0, 18)
-                .map((s) => (
-                  <Chip key={s} label={s} onPress={() => toggle(s)} />
-                ))}
-            </View>
-          </View>
-        ) : null}
-
-        {/* --- resultats --- */}
-        {isHydrating ? (
-          <View style={{ height: 240 }}>
-            <LoadingState />
-          </View>
-        ) : recipesQuery.isError && catalogue.length === 0 ? (
-          <View style={{ height: 240 }}>
-            <ErrorState
-              message={(recipesQuery.error as Error)?.message}
-              onRetry={() => recipesQuery.refetch()}
-            />
-          </View>
-        ) : count === 0 ? (
-          <View style={{ height: 260 }}>
-            <EmptyState
-              title="Frigo vide"
-              message="Ajoute au moins un ingrédient et on cherche ce que tu peux cuisiner."
-            />
-          </View>
-        ) : results.length === 0 ? (
-          <View style={{ height: 260 }}>
-            <EmptyState
-              title="Rien ne colle"
-              message="Aucune recette du carnet n'utilise ces ingrédients. Essaie d'en ajouter d'autres."
-              action={{ label: 'Vider le frigo', onPress: clear }}
-            />
-          </View>
-        ) : (
-          groupes.map((groupe) => (
-            <View key={groupe.titre} style={{ gap: spacing.row }}>
-              <SectionHeader title={`${groupe.titre} · ${groupe.items.length}`} />
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.row }}>
-                {groupe.items.map((m: MatchResult) => (
-                  <View key={m.recipe.id} style={{ width: cardWidth, gap: spacing.sm }}>
-                    <RecipeCard
-                      recipe={m.recipe}
-                      width={cardWidth}
-                      isFavorite={isFavorite(m.recipe.id)}
-                      onToggleFavorite={() => toggleFavorite(m.recipe.id)}
-                    />
-                    <Text
-                      style={{
-                        ...type.caption,
-                        fontSize: 12,
-                        color: m.missing.length === 0 ? theme.accent : theme.textPlaceholder,
-                      }}>
-                      {m.missing.length === 0
-                        ? 'Tout y est'
-                        : `Manque ${m.missing.length} : ${m.missing
-                            .slice(0, 2)
-                            .map(ingredientName)
-                            .join(', ')}`}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          ))
-        )}
+        {echanges.map((e) => (
+          <EchangeVue
+            key={e.id}
+            echange={e}
+            onChoisir={(p) =>
+              router.push({ pathname: '/frigo/detail', params: { echange: e.id, titre: p.titre } })
+            }
+          />
+        ))}
       </ScrollView>
-    </>
+
+      {/* --- saisie, collee au clavier --- */}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'flex-end',
+          gap: spacing.sm,
+          paddingHorizontal: spacing.gutter,
+          paddingTop: spacing.sm,
+          paddingBottom: Math.max(insets.bottom, spacing.sm) + spacing.sm,
+          borderTopWidth: 1,
+          borderTopColor: theme.borderCard,
+          backgroundColor: theme.bgMain,
+        }}>
+        <TextInput
+          value={texte}
+          onChangeText={setTexte}
+          placeholder="J'ai du poulet, du riz, des tomates…"
+          placeholderTextColor={theme.textPlaceholder}
+          multiline
+          onSubmitEditing={envoyer}
+          blurOnSubmit
+          style={{
+            flex: 1,
+            minHeight: 46,
+            maxHeight: 120,
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            borderRadius: radius.lg,
+            borderWidth: 1,
+            borderColor: theme.borderInput,
+            backgroundColor: theme.bgInput,
+            fontFamily: type.body.fontFamily,
+            fontSize: 15,
+            color: theme.textMain,
+          }}
+        />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Chercher des recettes"
+          disabled={texte.trim().length < 3 || enCours}
+          onPress={envoyer}
+          style={({ pressed }) => ({
+            width: 46,
+            height: 46,
+            borderRadius: 23,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: theme.accent,
+            opacity: texte.trim().length < 3 || enCours ? 0.4 : pressed ? 0.85 : 1,
+          })}>
+          {enCours ? (
+            <ActivityIndicator color={theme.btnText} />
+          ) : (
+            <Icon name={icons.arrowUp} size={18} color={theme.btnText} />
+          )}
+        </Pressable>
+      </View>
+    </KeyboardAvoidingView>
+  );
+}
+
+function EchangeVue({ echange, onChoisir }: { echange: Echange; onChoisir: (p: Proposition) => void }) {
+  const theme = useAppTheme();
+
+  return (
+    <View style={{ gap: spacing.row }}>
+      {/* la phrase de l'utilisateur */}
+      <View style={{ alignItems: 'flex-end' }}>
+        <View
+          style={{
+            maxWidth: '85%',
+            paddingHorizontal: spacing.row + 2,
+            paddingVertical: 10,
+            borderRadius: radius.lg,
+            borderBottomRightRadius: 6,
+            backgroundColor: theme.accent,
+          }}>
+          <Text style={{ ...type.body, color: theme.btnText }}>{echange.message}</Text>
+        </View>
+      </View>
+
+      {/* la reponse */}
+      {echange.etat === 'en_cours' ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+          <ActivityIndicator color={theme.accent} />
+          <Text style={{ ...type.body, color: theme.textSecondary }}>Je cherche des recettes…</Text>
+        </View>
+      ) : null}
+
+      {echange.etat === 'erreur' ? (
+        <View
+          style={{
+            padding: spacing.row,
+            borderRadius: radius.md,
+            backgroundColor: theme.bgSubtle,
+            borderWidth: 1,
+            borderColor: theme.borderCard,
+          }}>
+          <Text style={{ ...type.bodySemi, color: theme.textMain }}>Je n'ai pas pu chercher.</Text>
+          <Text style={{ ...type.caption, color: theme.textSecondary, marginTop: 2 }}>{echange.erreur}</Text>
+        </View>
+      ) : null}
+
+      {echange.etat === 'ok' ? (
+        <View style={{ gap: spacing.row }}>
+          {echange.ingredients.length > 0 ? (
+            <Text style={{ ...type.caption, color: theme.textSecondary }}>
+              Avec : {echange.ingredients.join(', ')}
+            </Text>
+          ) : null}
+
+          {echange.propositions.length === 0 ? (
+            <Text style={{ ...type.body, color: theme.textMain }}>
+              Je n'ai rien trouvé qui tienne avec seulement ça. Ajoute un ou deux ingrédients ?
+            </Text>
+          ) : null}
+
+          {echange.propositions.map((p) => (
+            <Pressable
+              key={p.titre}
+              accessibilityRole="button"
+              accessibilityLabel={`Voir la recette ${p.titre}`}
+              onPress={() => onChoisir(p)}
+              style={({ pressed }) => ({
+                padding: spacing.row + 2,
+                gap: 6,
+                borderRadius: radius.lg,
+                borderCurve: 'continuous',
+                backgroundColor: pressed ? theme.bgHover : theme.bgCard,
+                borderWidth: 1,
+                borderColor: theme.borderCard,
+                ...shadow(theme.shadowCard),
+              })}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+                <Text style={{ ...type.cardTitle, flex: 1, color: theme.textMain }} numberOfLines={2}>
+                  {p.titre}
+                </Text>
+                <Icon name={icons.chevronRight} size={13} color={theme.accent} />
+              </View>
+              <Text style={{ ...type.body, fontSize: 14, color: theme.textSecondary }}>{p.resume}</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 2 }}>
+                {[p.temps, p.difficulte, p.carnet ? 'Recette du carnet' : null]
+                  .filter(Boolean)
+                  .map((t) => (
+                    <View
+                      key={String(t)}
+                      style={{
+                        paddingHorizontal: 9,
+                        paddingVertical: 3,
+                        borderRadius: radius.pill,
+                        backgroundColor: theme.bgSubtle,
+                      }}>
+                      <Text style={{ ...type.eyebrow, fontSize: 9.5, color: theme.accentDeep }}>{String(t)}</Text>
+                    </View>
+                  ))}
+              </View>
+              <Text style={{ ...type.caption, fontSize: 12, color: theme.textMuted }}>
+                Utilise : {p.ingredients_utilises.join(', ')}
+                {p.basiques_utilises.length ? ` · placard : ${p.basiques_utilises.join(', ')}` : ''}
+              </Text>
+            </Pressable>
+          ))}
+
+          {echange.rejetees > 0 ? (
+            <Text style={{ ...type.caption, fontSize: 11.5, color: theme.textPlaceholder }}>
+              {echange.rejetees} proposition{echange.rejetees > 1 ? 's' : ''} écartée
+              {echange.rejetees > 1 ? 's' : ''} : elle{echange.rejetees > 1 ? 's' : ''} demandai
+              {echange.rejetees > 1 ? 'ent' : 't'} un ingrédient que tu n'as pas.
+            </Text>
+          ) : null}
+        </View>
+      ) : null}
+    </View>
   );
 }

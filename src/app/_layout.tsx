@@ -94,6 +94,12 @@ export default function RootLayout() {
           <Stack.Screen name="recipe/[id]" />
           <Stack.Screen name="about" />
           <Stack.Screen name="cook/[id]" options={{ presentation: 'fullScreenModal' }} />
+          <Stack.Screen name="frigo/detail" />
+          {/* Mode admin : le carnet complet, meme compte que le site. */}
+          <Stack.Screen name="admin/index" />
+          <Stack.Screen name="admin/recette/[id]" />
+          <Stack.Screen name="admin/suggestions" />
+          <Stack.Screen name="admin/textes" />
           {/* Feuilles natives : des ecrans empiles, pas des vues superposees.
               Les feuilles `@expo/ui` affichaient leur contenu mais aucune
               ligne ne recevait le toucher. */}

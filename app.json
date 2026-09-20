@@ -31,7 +31,7 @@
     "android": {
       "package": "com.akelloulou.recipes",
       "adaptiveIcon": {
-        "backgroundColor": "#FDF6FB",
+        "backgroundColor": "#FFF8F1",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -47,7 +47,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#FDF6FB",
+          "backgroundColor": "#FFF8F1",
           "dark": {
             "backgroundColor": "#0E1116"
           },
@@ -68,6 +68,6 @@
       }
     },
     "locales": {},
-    "primaryColor": "#FF6B9D"
+    "primaryColor": "#F26A1B"
   }
 }

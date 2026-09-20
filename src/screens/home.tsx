@@ -1,5 +1,5 @@
 import { useIsRestoring } from '@tanstack/react-query';
-import { useRouter } from 'expo-router';
+import { type Href, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { useMemo, useState } from 'react';
 import {
@@ -141,6 +141,25 @@ export function HomeScreen() {
               <Text style={{ ...type.eyebrow, flex: 1, color: theme.accent }}>
                 AKEL LOULOU
               </Text>
+              {/* Mode admin : le carnet complet, meme compte que le site. */}
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Mode admin"
+                hitSlop={6}
+                onPress={() => router.push('/admin' as Href)}
+                style={({ pressed }) => ({
+                  width: 32,
+                  height: 32,
+                  borderRadius: 16,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderWidth: 1,
+                  borderColor: theme.borderCard,
+                  backgroundColor: theme.bgCard,
+                  opacity: pressed ? 0.7 : 1,
+                })}>
+                <Icon name={icons.lock} size={12} color={theme.textSecondary} />
+              </Pressable>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="À propos, confidentialité et support"

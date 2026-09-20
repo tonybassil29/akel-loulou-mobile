@@ -43,42 +43,42 @@ export interface BrandColors {
 }
 
 const palette: Record<'light' | 'dark', BrandColors> = {
-  // --- LIGHT : "rose poudre" ---
+  // --- LIGHT : "orange abricot" ---
   light: {
-    accent: '#FF6B9D',
-    accentSecondary: '#FFA94D',
-    accentGold: '#FFC2E2',
-    accentGoldSoft: '#FFD6EB',
-    accentDeep: '#C2185B',
-    bgMain: '#FDF6FB',
+    accent: '#F26A1B',
+    accentSecondary: '#FBBF24',
+    accentGold: '#FED7AA',
+    accentGoldSoft: '#FFE8CC',
+    accentDeep: '#C2410C',
+    bgMain: '#FFF8F1',
     bgCard: '#FFFFFF',
-    bgHover: '#FFF0F8',
-    bgSubtle: '#FFEEF4',
+    bgHover: '#FFF1E4',
+    bgSubtle: '#FFEFDF',
     bgInput: '#FFFFFF',
-    borderCard: '#FFEEF4',
-    borderInput: '#FFD6EB',
-    textMain: '#1A0A1E',
-    textSecondary: '#B090A8',
-    textPlaceholder: '#C8B0C0',
-    textMuted: '#8A6A82',
-    badgeDessertBg: '#FFE4F0',
-    badgeDessertText: '#C2185B',
+    borderCard: '#FFE8D3',
+    borderInput: '#FED7AA',
+    textMain: '#1F1108',
+    textSecondary: '#A9785A',
+    textPlaceholder: '#C9A58E',
+    textMuted: '#8A6244',
+    badgeDessertBg: '#FFE4CC',
+    badgeDessertText: '#C2410C',
     badgePlatBg: '#FFF3CD',
     badgePlatText: '#C87800',
-    aboutGrad1: '#FFB3D1',
-    aboutGrad2: '#FECFEF',
-    aboutGrad3: '#C084FC',
+    aboutGrad1: '#FDBA74',
+    aboutGrad2: '#FED7AA',
+    aboutGrad3: '#FB923C',
     btnText: '#FFFFFF',
-    shadowCard: 'rgba(255, 107, 157, 0.06)',
-    shadowWarm: 'rgba(194, 24, 91, 0.08)',
+    shadowCard: 'rgba(242, 106, 27, 0.07)',
+    shadowWarm: 'rgba(194, 65, 12, 0.09)',
   },
   // --- DARK : "Onyx & Champagne" ---
   dark: {
-    accent: '#E8A87C',
-    accentSecondary: '#D4A574',
+    accent: '#FB923C',
+    accentSecondary: '#F5B15A',
     accentGold: '#E5C89F',
     accentGoldSoft: '#C2A47A',
-    accentDeep: '#C8784A',
+    accentDeep: '#EA580C',
     bgMain: '#0E1116',
     bgCard: '#161A20',
     bgHover: '#1C2026',
@@ -90,8 +90,8 @@ const palette: Record<'light' | 'dark', BrandColors> = {
     textSecondary: '#B8AFA0',
     textPlaceholder: '#6B645B',
     textMuted: '#9A9388',
-    badgeDessertBg: 'rgba(232, 168, 124, 0.14)',
-    badgeDessertText: '#E8A87C',
+    badgeDessertBg: 'rgba(251, 146, 60, 0.16)',
+    badgeDessertText: '#FB923C',
     badgePlatBg: 'rgba(212, 165, 116, 0.12)',
     badgePlatText: '#D4A574',
     aboutGrad1: '#14181E',
@@ -103,13 +103,13 @@ const palette: Record<'light' | 'dark', BrandColors> = {
   },
 };
 
-/** Degrade de marque : --btn-from -> --btn-to (rose -> abricot). */
+/** Degrade de marque : --btn-from -> --btn-to (orange -> ambre). */
 export const brandGradient = (c: BrandColors): readonly [string, string] => [
   c.accent,
   c.accentSecondary,
 ];
 
-/** Degrade des titres ("text-gradient" du site) : rose -> abricot -> rose poudre. */
+/** Degrade des titres ("text-gradient" du site) : orange -> ambre -> peche. */
 export const titleGradient = (c: BrandColors): readonly [string, string, string] => [
   c.accent,
   c.accentSecondary,
