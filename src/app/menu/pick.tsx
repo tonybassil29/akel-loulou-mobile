@@ -1,9 +1,9 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Stack } from 'expo-router/stack';
 import { Image } from 'expo-image';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
+import { SheetHeader } from '@/components/sheet-header';
 import { normalizeString } from '@/lib/format';
 import { thumbUrl } from '@/lib/images';
 import { useRecipes } from '@/lib/queries';
@@ -40,7 +40,11 @@ export default function MenuPickScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bgMain }}>
-      <Stack.Screen options={{ title: titre }} />
+      <SheetHeader
+        title={titre}
+        subtitle={`${recettes.length} recettes`}
+        onClose={() => router.back()}
+      />
 
       <View style={{ paddingHorizontal: spacing.gutter, paddingTop: spacing.row }}>
         <TextInput
@@ -65,6 +69,7 @@ export default function MenuPickScreen() {
       </View>
 
       <ScrollView
+        style={{ flex: 1 }}
         contentContainerStyle={{ padding: spacing.row, paddingBottom: spacing.section }}
         keyboardShouldPersistTaps="handled">
         {recettes.length === 0 ? (

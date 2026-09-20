@@ -97,12 +97,15 @@ export default function RootLayout() {
               Les feuilles `@expo/ui` affichaient leur contenu mais aucune
               ligne ne recevait le toucher. */}
           {/* Deux routes fixes plutot qu'une route dynamique : sur appareil,
-              le parametre arrivait vide au premier rendu. */}
+              le parametre arrivait vide au premier rendu.
+              `headerShown: false` : un en-tete natif opaque dans une formSheet
+              laissait le contenu sans hauteur, la feuille s'ouvrait vide. Les
+              titres sont dessines par `SheetHeader`, dans le contenu. */}
           <Stack.Screen
             name="filtre/pays"
             options={{
               presentation: 'formSheet',
-              headerShown: true,
+              headerShown: false,
               sheetGrabberVisible: true,
               sheetAllowedDetents: [0.55, 1],
             }}
@@ -111,7 +114,7 @@ export default function RootLayout() {
             name="filtre/tags"
             options={{
               presentation: 'formSheet',
-              headerShown: true,
+              headerShown: false,
               sheetGrabberVisible: true,
               sheetAllowedDetents: [0.55, 1],
             }}
@@ -120,7 +123,7 @@ export default function RootLayout() {
             name="menu/pick"
             options={{
               presentation: 'formSheet',
-              headerShown: true,
+              headerShown: false,
               sheetGrabberVisible: true,
               sheetAllowedDetents: [0.7, 1],
             }}

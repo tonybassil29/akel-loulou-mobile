@@ -1,9 +1,9 @@
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { Stack } from 'expo-router/stack';
 import { useMemo } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
+import { SheetHeader } from '@/components/sheet-header';
 import { flagUrl } from '@/lib/country';
 import { normalizeCountryName } from '@/lib/format';
 import { useHomeFilters } from '@/lib/home-filters';
@@ -16,9 +16,10 @@ import { useAppTheme } from '@/theme/use-app-theme';
  *
  * Le type de filtre est passe en prop et non par un parametre de route : avec
  * une route dynamique `filtre/[type]`, `useLocalSearchParams()` renvoie un
- * objet vide au premier rendu sur appareil. On basculait alors sur la liste des
- * tags — qui n'en compte qu'un — et l'ecran paraissait vide quand on demandait
- * les pays. Deux routes fixes, aucun parametre, aucun premier rendu ambigu.
+ * objet vide au premier rendu sur appareil.
+ *
+ * L'en-tete vient de `SheetHeader` et non de la pile : un en-tete natif opaque
+ * dans une `formSheet` laissait le contenu sans hauteur.
  */
 export function FiltreListe({ kind }: { kind: 'pays' | 'tags' }) {
   const theme = useAppTheme();
@@ -45,11 +46,34 @@ export function FiltreListe({ kind }: { kind: 'pays' | 'tags' }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bgMain }}>
-      <Stack.Screen options={{ title: estPays ? 'Pays' : 'Tags' }} />
+      <SheetHeader
+        title={estPays ? 'Pays' : 'Tags'}
+        subtitle={`${options.length} choix · ${catalogue.length} recettes`}
+        onClose={() => router.back()}
+      />
 
       <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={{ padding: spacing.row, paddingBottom: spacing.section }}>
+        style={{ flex: 1 }}
+        contentContainerStyle={{
+          paddingHorizontal: spacing.row,
+          paddingBottom: spacing.section,
+        }}>
+        {options.length === 0 ? (
+          <Text
+            style={{
+              ...type.body,
+              color: theme.textPlaceholder,
+              textAlign: 'center',
+              paddingVertical: spacing.group,
+            }}>
+            {recipesQuery.isPending
+              ? 'Chargement…'
+              : estPays
+                ? 'Aucun pays dans le carnet.'
+                : 'Aucun tag dans le carnet.'}
+          </Text>
+        ) : null}
+
         {lignes.map((option) => {
           const actif = option === selected;
           const libelle = option === 'all' ? (estPays ? 'Tous les pays' : 'Tous les tags') : option;
