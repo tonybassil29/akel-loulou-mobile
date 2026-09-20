@@ -61,6 +61,30 @@ const QUANTITY_PREFIX = new RegExp(
   "i"
 );
 
+/**
+ * Separe la quantite du nom, comme le site : « 25g de cacao » devient
+ * { qty: "25 g", nom: "de cacao" }. La quantite s'affiche en gras au-dessus du
+ * nom sous la vignette — sans ca, l'app n'indiquait aucun poids.
+ */
+export function splitIngredient(text: string): { qty: string; nom: string } {
+  if (!text) return { qty: '', nom: '' };
+  const m = text.match(
+    new RegExp(
+      "^(\\d+(?:[.,]\\d+)?(?:\\/\\d+)?(?:-\\d+)?|[\u00bd\u00bc\u00be\u2153\u2154])\\s*" +
+        "((?:" + UNITS + ")\\b\\.?)?\\s*" +
+        "(?:(\\u00e0\\s+(?:caf\u00e9|soupe))\\s*)?\\s*(de\\s|d')?\\s*(.*)$",
+      "i"
+    )
+  );
+  if (!m) return { qty: '', nom: text };
+  const qty = `${m[1]} ${(m[2] ?? '').trim()}${m[3] ? ' ' + m[3] : ''}`.trim();
+  // « d' » se colle au mot suivant, « de » prend une espace.
+  const liaison = (m[4] ?? '').trim();
+  const reste = (m[5] ?? '').trim();
+  const nom = liaison === "d'" ? `${liaison}${reste}` : `${liaison} ${reste}`.trim();
+  return { qty, nom: nom || text };
+}
+
 /** Retire la quantite pour n'afficher que le nom sous la vignette. */
 export function ingredientName(text: string): string {
   if (!text) return '';

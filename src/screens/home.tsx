@@ -241,7 +241,7 @@ export function HomeScreen() {
                   trailing={'▾'}
                   tone="accent"
                   selected={country !== 'all'}
-                  onPress={() => router.push({ pathname: '/filtre/[type]', params: { type: 'pays' } })}
+                  onPress={() => router.push('/filtre/pays')}
                 />
               ) : null}
               {tags.length > 0 ? (
@@ -251,7 +251,7 @@ export function HomeScreen() {
                   trailing={'▾'}
                   tone="accent"
                   selected={tag !== 'all'}
-                  onPress={() => router.push({ pathname: '/filtre/[type]', params: { type: 'tags' } })}
+                  onPress={() => router.push('/filtre/tags')}
                 />
               ) : null}
             </View>

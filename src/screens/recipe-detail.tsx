@@ -14,7 +14,7 @@ import { SectionHeader } from '@/components/section-header';
 import { flagUrl } from '@/lib/country';
 import { useFavorites } from '@/lib/favorites';
 import { normalizeString, parseInstructions, scaleIngredient } from '@/lib/format';
-import { getIngredientImage, ingredientName } from '@/lib/ingredient-images';
+import { getIngredientImage, ingredientName, splitIngredient } from '@/lib/ingredient-images';
 import { heroUrl, thumbUrl } from '@/lib/images';
 import { useCustomIngredientImages, useRecipe, useRecipes } from '@/lib/queries';
 import { useShoppingList } from '@/lib/shopping-list';
@@ -513,6 +513,9 @@ function IngredientTile({
   const theme = useAppTheme();
   const router = useRouter();
   const name = ingredientName(label);
+  // Quantite au-dessus, nom en dessous — la mise en forme du site. Sans ca,
+  // l'app n'affichait aucun poids : on voyait « cacao » sans les 25 g.
+  const { qty, nom } = splitIngredient(label);
 
   const body = (
     <>
@@ -540,20 +543,35 @@ function IngredientTile({
         )}
       </View>
 
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 3 }}>
-        <Text
-          numberOfLines={3}
-          style={{
-            ...type.bodySemi,
-            fontSize: 11.5,
-            textAlign: 'center',
-            color: linkedRecipe ? theme.accent : theme.textMain,
-          }}>
-          {name}
-        </Text>
-        {linkedRecipe ? (
-          <Icon name={icons.chevronRight} size={10} color={theme.accent} />
+      <View style={{ gap: 1 }}>
+        {qty ? (
+          <Text
+            numberOfLines={1}
+            style={{
+              ...type.bodySemi,
+              fontSize: 12,
+              textAlign: 'center',
+              color: linkedRecipe ? theme.accent : theme.textMain,
+            }}>
+            {qty}
+          </Text>
         ) : null}
+        <View
+          style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 3 }}>
+          <Text
+            numberOfLines={3}
+            style={{
+              ...type.caption,
+              fontSize: 11,
+              textAlign: 'center',
+              color: linkedRecipe ? theme.accent : qty ? theme.textSecondary : theme.textMain,
+            }}>
+            {qty ? nom : name}
+          </Text>
+          {linkedRecipe ? (
+            <Icon name={icons.chevronRight} size={10} color={theme.accent} />
+          ) : null}
+        </View>
       </View>
     </>
   );

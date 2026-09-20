@@ -1,6 +1,6 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Stack } from 'expo-router/stack';
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
+import { Stack } from 'expo-router/stack';
 import { useMemo } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
@@ -12,35 +12,31 @@ import { radius, spacing, type } from '@/theme';
 import { useAppTheme } from '@/theme/use-app-theme';
 
 /**
- * Choix d'un pays ou d'un tag, en feuille native empilee.
+ * Liste de choix d'un filtre, presentee en feuille native empilee.
  *
- * L'ancienne version passait par `@expo/ui` BottomSheet dans un `Host` en
- * position absolue : le conteneur avait une taille nulle, la feuille
- * s'affichait mais aucune ligne n'etait cliquable. Une route en `formSheet`
- * est une vraie feuille UIKit — elle recoit les touches comme n'importe quel
- * ecran.
+ * Le type de filtre est passe en prop et non par un parametre de route : avec
+ * une route dynamique `filtre/[type]`, `useLocalSearchParams()` renvoie un
+ * objet vide au premier rendu sur appareil. On basculait alors sur la liste des
+ * tags — qui n'en compte qu'un — et l'ecran paraissait vide quand on demandait
+ * les pays. Deux routes fixes, aucun parametre, aucun premier rendu ambigu.
  */
-export default function FiltreScreen() {
+export function FiltreListe({ kind }: { kind: 'pays' | 'tags' }) {
   const theme = useAppTheme();
   const router = useRouter();
-  const { type: kind } = useLocalSearchParams<{ type: string }>();
   const { country, tag, set } = useHomeFilters();
   const recipesQuery = useRecipes();
 
   const estPays = kind === 'pays';
+
   const catalogue = useMemo(
     () => (recipesQuery.data ?? []).filter((r) => r.category !== 'menu_only'),
     [recipesQuery.data]
   );
 
   const options = useMemo(() => {
-    if (estPays) {
-      const noms = catalogue
-        .map((r) => normalizeCountryName(r.country))
-        .filter((n): n is string => Boolean(n));
-      return Array.from(new Set(noms)).sort((a, b) => a.localeCompare(b));
-    }
-    const noms = catalogue.flatMap((r) => r.tags ?? []).filter(Boolean);
+    const noms = estPays
+      ? catalogue.map((r) => normalizeCountryName(r.country)).filter(Boolean)
+      : catalogue.flatMap((r) => r.tags ?? []).filter(Boolean);
     return Array.from(new Set(noms)).sort((a, b) => a.localeCompare(b));
   }, [catalogue, estPays]);
 
@@ -56,8 +52,7 @@ export default function FiltreScreen() {
         contentContainerStyle={{ padding: spacing.row, paddingBottom: spacing.section }}>
         {lignes.map((option) => {
           const actif = option === selected;
-          const libelle =
-            option === 'all' ? (estPays ? 'Tous les pays' : 'Tous les tags') : option;
+          const libelle = option === 'all' ? (estPays ? 'Tous les pays' : 'Tous les tags') : option;
           const drapeau = estPays && option !== 'all' ? flagUrl(option, 40) : null;
 
           return (
@@ -86,16 +81,17 @@ export default function FiltreScreen() {
                   accessibilityIgnoresInvertColors
                 />
               ) : (
-                <Text style={{ fontSize: 14, width: 24, color: theme.textSecondary }}>
-                  {option === 'all' ? (estPays ? '◯' : '#') : estPays ? '' : '#'}
+                <Text
+                  style={{
+                    fontSize: 14,
+                    width: 24,
+                    textAlign: 'center',
+                    color: theme.textSecondary,
+                  }}>
+                  {option === 'all' ? (estPays ? '◯' : '#') : estPays ? '·' : '#'}
                 </Text>
               )}
-              <Text
-                style={{
-                  ...type.body,
-                  flex: 1,
-                  color: actif ? theme.accent : theme.textMain,
-                }}>
+              <Text style={{ ...type.body, flex: 1, color: actif ? theme.accent : theme.textMain }}>
                 {libelle}
               </Text>
               {actif ? <Text style={{ fontSize: 15, color: theme.accent }}>✓</Text> : null}
