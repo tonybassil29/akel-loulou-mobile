@@ -24,7 +24,8 @@ export interface Recipe {
   hidden: boolean | null;
   is_secondary: boolean | null;
   show_portions: boolean | null;
-  related_recipes: string[] | null;
+  /** Recettes liees, telles que le site les enregistre : { id, title }. */
+  related_recipes: { id: string; title: string }[] | null;
   created_at: string;
   updated_at: string;
 }

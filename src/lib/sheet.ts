@@ -18,3 +18,6 @@ export const FRACTION_CHOIX_RECETTE = 0.85;
 export function hauteurFeuille(hauteurFenetre: number, fraction: number) {
   return Math.round(hauteurFenetre * fraction) - 28;
 }
+
+/** La feuille de suggestion : un formulaire, le clavier prend de la place. */
+export const FRACTION_SUGGESTION = 0.8;

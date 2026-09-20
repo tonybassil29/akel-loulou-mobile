@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon, icons } from '@/components/icon';
 import { EmptyState, ErrorState, LoadingState } from '@/components/screen-state';
 import { thumbUrl } from '@/lib/images';
+import { sousRecettesDe } from '@/lib/linked-recipes';
 import { useRecipes } from '@/lib/queries';
 import { AISLES, aisleOf, isWater } from '@/lib/shopping-categories';
 import { useShoppingList } from '@/lib/shopping-list';
@@ -28,14 +29,22 @@ export function WeekPlanScreen() {
 
   const isRestoring = useIsRestoring();
   const recipesQuery = useRecipes();
+  // Le carnet complet, secondaires comprises : elles ne s'affichent pas dans
+  // le planning mais leurs ingredients doivent partir aux courses avec la
+  // recette qui les appelle.
+  const toutesQuery = useRecipes(true);
   const { plan, add, remove, clear, mealCount } = useWeekPlan();
   const { addMany } = useShoppingList();
 
   const [status, setStatus] = useState<string | null>(null);
 
   const recipes = recipesQuery.data ?? [];
+  const toutes = useMemo(
+    () => (toutesQuery.data?.length ? toutesQuery.data : recipes),
+    [toutesQuery.data, recipes]
+  );
 
-  const byId = useMemo(() => new Map(recipes.map((r) => [r.id, r])), [recipes]);
+  const byId = useMemo(() => new Map(toutes.map((r) => [r.id, r])), [toutes]);
 
   /**
    * Envoi vers les courses, un rayon apres l'autre. Surtout pas en parallele :
@@ -52,14 +61,19 @@ export function WeekPlanScreen() {
     for (let day = 0; day < DAYS.length; day += 1) {
       for (const { id: slot } of SLOTS) {
         for (const recipeId of plan[day]?.[slot] ?? []) {
-          if (seen.has(recipeId)) continue;
-          seen.add(recipeId);
-          for (const raw of byId.get(recipeId)?.ingredients ?? []) {
-            if (!raw || isWater(raw)) continue;
-            const aisle = aisleOf(raw);
-            const bucket = buckets.get(aisle.id);
-            if (bucket) bucket.push(raw);
-            else buckets.set(aisle.id, [raw]);
+          const recette = byId.get(recipeId);
+          if (!recette) continue;
+          // La recette, puis ses sous-recettes (l'Ater du Beklewa...).
+          for (const r of [recette, ...sousRecettesDe(recette, toutes)]) {
+            if (seen.has(r.id)) continue;
+            seen.add(r.id);
+            for (const raw of r.ingredients ?? []) {
+              if (!raw || isWater(raw)) continue;
+              const aisle = aisleOf(raw);
+              const bucket = buckets.get(aisle.id);
+              if (bucket) bucket.push(raw);
+              else buckets.set(aisle.id, [raw]);
+            }
           }
         }
       }
@@ -77,7 +91,7 @@ export function WeekPlanScreen() {
         ? 'Tout est déjà dans la liste de courses.'
         : `${total} ingrédient${total > 1 ? 's' : ''} ajouté${total > 1 ? 's' : ''} aux courses.`
     );
-  }, [plan, byId, addMany]);
+  }, [plan, byId, toutes, addMany]);
 
   const isHydrating = isRestoring || recipesQuery.isLoading || plan === null;
 
@@ -97,7 +111,7 @@ export function WeekPlanScreen() {
         <View style={{ gap: spacing.row }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.row }}>
             <View style={{ width: 28, height: 1, backgroundColor: theme.accent }} />
-            <Text style={{ ...type.eyebrow, color: theme.accent }}>AKEL LOULOU · MENU</Text>
+            <Text style={{ ...type.eyebrow, color: theme.accent }}>AKEL LOULOU</Text>
           </View>
           <Text style={{ ...type.display, color: theme.textMain }}>La semaine</Text>
           <Text style={{ ...type.body, color: theme.textMuted }}>

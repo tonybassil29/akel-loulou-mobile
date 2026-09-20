@@ -92,7 +92,7 @@ export function FridgeScreen() {
         <View style={{ gap: spacing.row }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.row }}>
             <View style={{ width: 28, height: 1, backgroundColor: theme.accent }} />
-            <Text style={{ ...type.eyebrow, color: theme.accent }}>AKEL LOULOU · FRIGO</Text>
+            <Text style={{ ...type.eyebrow, color: theme.accent }}>AKEL LOULOU</Text>
           </View>
           <Text style={{ ...type.display, color: theme.textMain }}>
             Qu'est-ce{'\n'}qu'on cuisine ?

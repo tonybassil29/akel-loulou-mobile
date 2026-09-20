@@ -17,6 +17,7 @@ import { normalizeString, parseInstructions, scaleIngredient } from '@/lib/forma
 import { getIngredientImage, ingredientName, splitIngredient } from '@/lib/ingredient-images';
 import { heroUrl, thumbUrl } from '@/lib/images';
 import { useCustomIngredientImages, useRecipe, useRecipes } from '@/lib/queries';
+import { sousRecettesDe } from '@/lib/linked-recipes';
 import { useShoppingList } from '@/lib/shopping-list';
 import { spiceEmoji, spiceLabel } from '@/lib/spices';
 import type { Recipe } from '@/lib/types';
@@ -102,7 +103,13 @@ export function RecipeDetailScreen({ id }: { id: string }) {
     const labels = [
       ...(recipe.ingredients ?? []).map((i) => scaleIngredient(i, factor)),
     ];
-    const added = await addMany(labels, recipe.id, recipe.title);
+    let added = await addMany(labels, recipe.id, recipe.title);
+    // Les sous-recettes suivent : le Beklewa sans le sucre de son Ater, ce
+    // n'est pas une liste de courses. Une apres l'autre — `addMany` relit
+    // l'etat avant d'ecrire, deux appels simultanes s'ecraseraient.
+    for (const sous of sousRecettesDe(recipe, allRecipes)) {
+      added += await addMany(sous.ingredients ?? [], sous.id, sous.title);
+    }
     setAddedToList(true);
     if (process.env.EXPO_OS === 'ios') {
       Haptics.notificationAsync(
@@ -546,10 +553,13 @@ function IngredientTile({
       <View style={{ gap: 1 }}>
         {qty ? (
           <Text
-            numberOfLines={1}
+            numberOfLines={2}
             style={{
+              // La quantite est l'information que la cuisiniere cherche : en
+              // gras, en couleur pleine, plus grande que le nom en dessous.
               ...type.bodySemi,
-              fontSize: 12,
+              fontSize: 13,
+              lineHeight: 16,
               textAlign: 'center',
               color: linkedRecipe ? theme.accent : theme.textMain,
             }}>

@@ -72,7 +72,7 @@ export function ShoppingListScreen() {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.row }}>
             <View style={{ width: 28, height: 1, backgroundColor: theme.accent }} />
             <Text style={{ ...type.eyebrow, color: theme.accent }}>
-              AKEL LOULOU {'·'} CARNET
+              AKEL LOULOU
             </Text>
           </View>
           <Text style={{ ...type.display, color: theme.textMain }}>Courses</Text>

@@ -64,7 +64,7 @@ export function GalleryScreen() {
         {/* --- surtitre + grand titre, comme l'en-tete editorial du site --- */}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.row }}>
           <View style={{ width: 28, height: 1, backgroundColor: theme.accent }} />
-          <Text style={{ ...type.eyebrow, color: theme.accent }}>AKEL LOULOU {'·'} CARNET</Text>
+          <Text style={{ ...type.eyebrow, color: theme.accent }}>AKEL LOULOU</Text>
         </View>
         <Text
           style={{

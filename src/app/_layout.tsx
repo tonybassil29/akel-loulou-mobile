@@ -22,7 +22,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
 import { palette } from '@/theme';
-import { FRACTION_CHOIX_RECETTE, FRACTION_FILTRE } from '@/lib/sheet';
+import { FRACTION_CHOIX_RECETTE, FRACTION_FILTRE, FRACTION_SUGGESTION } from '@/lib/sheet';
 import { useAppTheme } from '@/theme/use-app-theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -122,11 +122,9 @@ export default function RootLayout() {
             name="suggest"
             options={{
               presentation: 'formSheet',
-              headerShown: true,
-              headerTransparent: true,
-              headerTitle: '',
+              headerShown: false,
               sheetGrabberVisible: true,
-              sheetAllowedDetents: [0.65, 1],
+              sheetAllowedDetents: [FRACTION_SUGGESTION],
             }}
           />
         </Stack>

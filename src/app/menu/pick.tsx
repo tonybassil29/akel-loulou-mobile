@@ -39,10 +39,13 @@ export default function MenuPickScreen() {
       : 'Choisir une recette';
 
   const recettes = useMemo(() => {
-    const liste = [...(recipesQuery.data ?? [])].sort((a, b) => a.title.localeCompare(b.title));
+    // Au gouter on ne propose que des desserts ; midi et soir voient tout.
+    const liste = [...(recipesQuery.data ?? [])]
+      .filter((r) => creneau !== 'gouter' || r.category === 'dessert')
+      .sort((a, b) => a.title.localeCompare(b.title));
     const q = normalizeString(search);
     return q ? liste.filter((r) => normalizeString(r.title).includes(q)) : liste;
-  }, [recipesQuery.data, search]);
+  }, [recipesQuery.data, search, creneau]);
 
   return (
     <ScrollView
@@ -84,7 +87,7 @@ export default function MenuPickScreen() {
             textAlign: 'center',
             paddingVertical: spacing.group,
           }}>
-          Aucune recette à ce nom.
+          {creneau === 'gouter' ? 'Aucun dessert à ce nom.' : 'Aucune recette à ce nom.'}
         </Text>
       ) : null}
 

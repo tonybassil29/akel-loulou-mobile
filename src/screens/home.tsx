@@ -139,7 +139,7 @@ export function HomeScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.row }}>
               <View style={{ width: 28, height: 1, backgroundColor: theme.accent }} />
               <Text style={{ ...type.eyebrow, flex: 1, color: theme.accent }}>
-                AKEL LOULOU · CARNET
+                AKEL LOULOU
               </Text>
               <Pressable
                 accessibilityRole="button"
