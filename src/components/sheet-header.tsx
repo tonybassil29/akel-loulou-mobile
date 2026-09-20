@@ -26,6 +26,9 @@ export function SheetHeader({
   return (
     <View
       style={{
+        // Sans cela, le voisin en `flex: 1` peut ecraser l'en-tete a hauteur
+        // nulle : son texte deborde alors et la liste se dessine par-dessus.
+        flexShrink: 0,
         flexDirection: 'row',
         alignItems: 'center',
         gap: spacing.row,

@@ -1,12 +1,13 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, Text, TextInput, View, useWindowDimensions } from 'react-native';
 
 import { SheetHeader } from '@/components/sheet-header';
 import { normalizeString } from '@/lib/format';
 import { thumbUrl } from '@/lib/images';
 import { useRecipes } from '@/lib/queries';
+import { FRACTION_CHOIX_RECETTE, hauteurFeuille } from '@/lib/sheet';
 import { DAYS, SLOTS, useWeekPlan, type MealSlot } from '@/lib/week-plan';
 import { radius, spacing, type } from '@/theme';
 import { useAppTheme } from '@/theme/use-app-theme';
@@ -24,6 +25,7 @@ export default function MenuPickScreen() {
   const recipesQuery = useRecipes();
   const { add } = useWeekPlan();
   const [search, setSearch] = useState('');
+  const { height } = useWindowDimensions();
 
   const jour = Number(day);
   const creneau = slot as MealSlot;
@@ -39,7 +41,8 @@ export default function MenuPickScreen() {
   }, [recipesQuery.data, search]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.bgMain }}>
+    <View
+      style={{ height: hauteurFeuille(height, FRACTION_CHOIX_RECETTE), backgroundColor: theme.bgMain }}>
       <SheetHeader
         title={titre}
         subtitle={`${recettes.length} recettes`}

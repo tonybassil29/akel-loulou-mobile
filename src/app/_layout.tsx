@@ -22,6 +22,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
 import { palette } from '@/theme';
+import { FRACTION_CHOIX_RECETTE, FRACTION_FILTRE } from '@/lib/sheet';
 import { useAppTheme } from '@/theme/use-app-theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -107,7 +108,7 @@ export default function RootLayout() {
               presentation: 'formSheet',
               headerShown: false,
               sheetGrabberVisible: true,
-              sheetAllowedDetents: [0.55, 1],
+              sheetAllowedDetents: [FRACTION_FILTRE],
             }}
           />
           <Stack.Screen
@@ -116,7 +117,7 @@ export default function RootLayout() {
               presentation: 'formSheet',
               headerShown: false,
               sheetGrabberVisible: true,
-              sheetAllowedDetents: [0.55, 1],
+              sheetAllowedDetents: [FRACTION_FILTRE],
             }}
           />
           <Stack.Screen
@@ -125,7 +126,7 @@ export default function RootLayout() {
               presentation: 'formSheet',
               headerShown: false,
               sheetGrabberVisible: true,
-              sheetAllowedDetents: [0.7, 1],
+              sheetAllowedDetents: [FRACTION_CHOIX_RECETTE],
             }}
           />
           <Stack.Screen

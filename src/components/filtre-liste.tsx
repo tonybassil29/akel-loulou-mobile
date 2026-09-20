@@ -1,13 +1,14 @@
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 
 import { SheetHeader } from '@/components/sheet-header';
 import { flagUrl } from '@/lib/country';
 import { normalizeCountryName } from '@/lib/format';
 import { useHomeFilters } from '@/lib/home-filters';
 import { useRecipes } from '@/lib/queries';
+import { FRACTION_FILTRE, hauteurFeuille } from '@/lib/sheet';
 import { radius, spacing, type } from '@/theme';
 import { useAppTheme } from '@/theme/use-app-theme';
 
@@ -18,14 +19,16 @@ import { useAppTheme } from '@/theme/use-app-theme';
  * une route dynamique `filtre/[type]`, `useLocalSearchParams()` renvoie un
  * objet vide au premier rendu sur appareil.
  *
- * L'en-tete vient de `SheetHeader` et non de la pile : un en-tete natif opaque
- * dans une `formSheet` laissait le contenu sans hauteur.
+ * L'en-tete vient de `SheetHeader` et non de la pile, et la hauteur est fixee
+ * a la main : une `formSheet` ne transmet pas la sienne a son contenu, donc un
+ * `flex: 1` s'y effondrait et la liste se dessinait par-dessus l'en-tete.
  */
 export function FiltreListe({ kind }: { kind: 'pays' | 'tags' }) {
   const theme = useAppTheme();
   const router = useRouter();
   const { country, tag, set } = useHomeFilters();
   const recipesQuery = useRecipes();
+  const { height } = useWindowDimensions();
 
   const estPays = kind === 'pays';
 
@@ -45,7 +48,7 @@ export function FiltreListe({ kind }: { kind: 'pays' | 'tags' }) {
   const lignes = ['all', ...options];
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.bgMain }}>
+    <View style={{ height: hauteurFeuille(height, FRACTION_FILTRE), backgroundColor: theme.bgMain }}>
       <SheetHeader
         title={estPays ? 'Pays' : 'Tags'}
         subtitle={`${options.length} choix · ${catalogue.length} recettes`}
