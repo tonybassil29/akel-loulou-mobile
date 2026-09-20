@@ -17,7 +17,7 @@ import { Chip } from '@/components/chip';
 import { Icon, icons } from '@/components/icon';
 import { RecipeCard } from '@/components/recipe-card';
 import { EmptyState, ErrorState, LoadingState } from '@/components/screen-state';
-import { normalizeCountryName, normalizeString } from '@/lib/format';
+import { normalizeString } from '@/lib/format';
 import { useFavorites } from '@/lib/favorites';
 import { useHomeFilters } from '@/lib/home-filters';
 import { useHeaderSettings, useRecipes } from '@/lib/queries';
@@ -33,9 +33,9 @@ export function HomeScreen() {
   const theme = useAppTheme();
   const router = useRouter();
 
-  // Les filtres pays et tag vivent hors du composant : la feuille de
+  // Le filtre tag vit hors du composant : la feuille de
   // selection est un ecran empile, elle ne peut rien renvoyer ici.
-  const { country, tag, set: setFilter, reset: resetFilters } = useHomeFilters();
+  const { tag, set: setFilter, reset: resetFilters } = useHomeFilters();
   const isRestoring = useIsRestoring();
   const recipesQuery = useRecipes();
   const { data: header } = useHeaderSettings();
@@ -62,13 +62,6 @@ export function HomeScreen() {
     [recipesQuery.data]
   );
 
-  const countries = useMemo(() => {
-    const names = catalogue
-      .map((r) => normalizeCountryName(r.country))
-      .filter((n): n is string => Boolean(n));
-    return Array.from(new Set(names)).sort((a, b) => a.localeCompare(b));
-  }, [catalogue]);
-
   const tags = useMemo(() => {
     const all = catalogue.flatMap((r) => r.tags ?? []).filter(Boolean);
     return Array.from(new Set(all)).sort((a, b) => a.localeCompare(b));
@@ -82,7 +75,6 @@ export function HomeScreen() {
       if ((category === 'plat' || category === 'dessert') && recipe.category !== category) {
         return false;
       }
-      if (country !== 'all' && normalizeCountryName(recipe.country) !== country) return false;
       if (tag !== 'all' && !(recipe.tags ?? []).includes(tag)) return false;
       if (!query) return true;
 
@@ -102,11 +94,11 @@ export function HomeScreen() {
         .join(' ');
       return haystack.includes(query);
     });
-  }, [catalogue, category, country, tag, search, isFavorite]);
+  }, [catalogue, category, tag, search, isFavorite]);
 
   const gap = spacing.row;
   const cardWidth = (width - spacing.gutter * 2 - gap) / 2;
-  const hasFilter = category !== 'all' || country !== 'all' || tag !== 'all' || search.length > 0;
+  const hasFilter = category !== 'all' || tag !== 'all' || search.length > 0;
   const isHydrating = isRestoring || recipesQuery.isLoading || favorites === null;
 
   const reset = () => {
@@ -234,16 +226,6 @@ export function HomeScreen() {
                   onPress={() => setCategory(filter.id)}
                 />
               ))}
-              {countries.length > 0 ? (
-                <Chip
-                  label={country === 'all' ? 'Pays' : country}
-                  emoji={'◯'}
-                  trailing={'▾'}
-                  tone="accent"
-                  selected={country !== 'all'}
-                  onPress={() => router.push('/filtre/pays')}
-                />
-              ) : null}
               {tags.length > 0 ? (
                 <Chip
                   label={tag === 'all' ? 'Tags' : tag}

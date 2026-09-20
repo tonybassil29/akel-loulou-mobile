@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 /**
- * Filtres pays et tag de l'ecran Recettes.
+ * Filtre tag de l'ecran Recettes.
  *
  * Ils vivent hors du composant parce que la feuille de selection est un ecran
  * empile : elle ne peut pas remonter une valeur a l'ecran precedent. Meme motif
@@ -9,11 +9,10 @@ import { useCallback, useEffect, useState } from 'react';
  * persistance : un filtre ne doit pas survivre au redemarrage de l'app.
  */
 export interface HomeFilters {
-  country: string;
   tag: string;
 }
 
-let cache: HomeFilters = { country: 'all', tag: 'all' };
+let cache: HomeFilters = { tag: 'all' };
 const listeners = new Set<(f: HomeFilters) => void>();
 
 export function setHomeFilter(key: keyof HomeFilters, value: string) {
@@ -22,7 +21,7 @@ export function setHomeFilter(key: keyof HomeFilters, value: string) {
 }
 
 export function resetHomeFilters() {
-  cache = { country: 'all', tag: 'all' };
+  cache = { tag: 'all' };
   listeners.forEach((l) => l(cache));
 }
 

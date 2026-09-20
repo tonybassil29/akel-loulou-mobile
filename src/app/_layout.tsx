@@ -97,20 +97,9 @@ export default function RootLayout() {
           {/* Feuilles natives : des ecrans empiles, pas des vues superposees.
               Les feuilles `@expo/ui` affichaient leur contenu mais aucune
               ligne ne recevait le toucher. */}
-          {/* Deux routes fixes plutot qu'une route dynamique : sur appareil,
-              le parametre arrivait vide au premier rendu.
-              `headerShown: false` : un en-tete natif opaque dans une formSheet
+          {/* `headerShown: false` : un en-tete natif opaque dans une formSheet
               laissait le contenu sans hauteur, la feuille s'ouvrait vide. Les
               titres sont dessines par `SheetHeader`, dans le contenu. */}
-          <Stack.Screen
-            name="filtre/pays"
-            options={{
-              presentation: 'formSheet',
-              headerShown: false,
-              sheetGrabberVisible: true,
-              sheetAllowedDetents: [FRACTION_FILTRE],
-            }}
-          />
           <Stack.Screen
             name="filtre/tags"
             options={{
