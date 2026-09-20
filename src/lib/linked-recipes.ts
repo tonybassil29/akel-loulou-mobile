@@ -29,3 +29,19 @@ export function sousRecettesDe(recipe: Recipe, toutes: Recipe[]): Recipe[] {
 
   return Array.from(trouvees.values());
 }
+
+/**
+ * L'ingredient qui *nomme* une sous-recette — « Ater (sirop de sucre) » dans
+ * le Beklewa, « Sauce skyr » dans le poisson — ne va pas aux courses : on
+ * n'achete pas de l'Ater, on achete son sucre. Ses propres ingredients le
+ * remplacent. Reconnu par le titre complet ou par le nom court sans parenthese.
+ */
+export function nommeUneSousRecette(ingredient: string, sousRecettes: Recipe[]): boolean {
+  const nom = normalizeString(ingredient.replace(/^[\d½¼¾⅓⅔.,/\s-]+(?:[a-zé]+\.?\s+)?(?:de\s|d')?/i, ''));
+  if (!nom) return false;
+  return sousRecettes.some((s) => {
+    const complet = normalizeString(s.title);
+    const court = normalizeString(s.title.replace(/\s*\(.*?\)\s*/g, ' ').trim());
+    return nom === complet || nom === court || complet.includes(nom) || (court.length > 3 && nom.includes(court));
+  });
+}

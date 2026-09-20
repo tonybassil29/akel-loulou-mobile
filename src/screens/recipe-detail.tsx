@@ -17,7 +17,7 @@ import { normalizeString, parseInstructions, scaleIngredient } from '@/lib/forma
 import { getIngredientImage, ingredientName, splitIngredient } from '@/lib/ingredient-images';
 import { heroUrl, thumbUrl } from '@/lib/images';
 import { useCustomIngredientImages, useRecipe, useRecipes } from '@/lib/queries';
-import { sousRecettesDe } from '@/lib/linked-recipes';
+import { nommeUneSousRecette, sousRecettesDe } from '@/lib/linked-recipes';
 import { useShoppingList } from '@/lib/shopping-list';
 import { spiceEmoji, spiceLabel } from '@/lib/spices';
 import type { Recipe } from '@/lib/types';
@@ -100,15 +100,20 @@ export function RecipeDetailScreen({ id }: { id: string }) {
   const addToShoppingList = async () => {
     // Les epices ne vont pas dans les courses : on les a deja dans le placard,
     // et elles noyaient la liste sous des lignes qu'on ne coche jamais.
-    const labels = [
-      ...(recipe.ingredients ?? []).map((i) => scaleIngredient(i, factor)),
-    ];
-    let added = await addMany(labels, recipe.id, recipe.title);
     // Les sous-recettes suivent : le Beklewa sans le sucre de son Ater, ce
-    // n'est pas une liste de courses. Une apres l'autre — `addMany` relit
-    // l'etat avant d'ecrire, deux appels simultanes s'ecraseraient.
-    for (const sous of sousRecettesDe(recipe, allRecipes)) {
-      added += await addMany(sous.ingredients ?? [], sous.id, sous.title);
+    // n'est pas une liste de courses. Et la ligne « Ater » elle-meme n'y va
+    // pas — ses ingredients la remplacent.
+    const sous = sousRecettesDe(recipe, allRecipes);
+    const labels = (recipe.ingredients ?? [])
+      .filter((i) => !nommeUneSousRecette(i, sous))
+      .map((i) => scaleIngredient(i, factor));
+    let added = await addMany(labels, recipe.id, recipe.title);
+    // Une apres l'autre — `addMany` relit l'etat avant d'ecrire, deux appels
+    // simultanes s'ecraseraient.
+    // ...et ils se rangent sous la recette principale : la liste ne doit
+    // jamais afficher « Ater » ou « Sauce skyr », seulement ce qu'on achete.
+    for (const s of sous) {
+      added += await addMany(s.ingredients ?? [], recipe.id, recipe.title);
     }
     setAddedToList(true);
     if (process.env.EXPO_OS === 'ios') {

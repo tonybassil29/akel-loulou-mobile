@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon, icons } from '@/components/icon';
 import { EmptyState, ErrorState, LoadingState } from '@/components/screen-state';
 import { thumbUrl } from '@/lib/images';
-import { sousRecettesDe } from '@/lib/linked-recipes';
+import { nommeUneSousRecette, sousRecettesDe } from '@/lib/linked-recipes';
 import { useRecipes } from '@/lib/queries';
 import { AISLES, aisleOf, isWater } from '@/lib/shopping-categories';
 import { useShoppingList } from '@/lib/shopping-list';
@@ -63,12 +63,15 @@ export function WeekPlanScreen() {
         for (const recipeId of plan[day]?.[slot] ?? []) {
           const recette = byId.get(recipeId);
           if (!recette) continue;
-          // La recette, puis ses sous-recettes (l'Ater du Beklewa...).
-          for (const r of [recette, ...sousRecettesDe(recette, toutes)]) {
+          // La recette, puis ses sous-recettes (l'Ater du Beklewa...). La ligne
+          // qui nomme la sous-recette ne part pas : ses ingredients la remplacent.
+          const sous = sousRecettesDe(recette, toutes);
+          for (const r of [recette, ...sous]) {
             if (seen.has(r.id)) continue;
             seen.add(r.id);
             for (const raw of r.ingredients ?? []) {
               if (!raw || isWater(raw)) continue;
+              if (r.id === recette.id && nommeUneSousRecette(raw, sous)) continue;
               const aisle = aisleOf(raw);
               const bucket = buckets.get(aisle.id);
               if (bucket) bucket.push(raw);
