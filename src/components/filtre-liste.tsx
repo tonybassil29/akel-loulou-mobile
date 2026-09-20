@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
-import { Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import { Pressable, ScrollView, Text, useWindowDimensions } from 'react-native';
 
 import { SheetHeader } from '@/components/sheet-header';
 import { flagUrl } from '@/lib/country';
@@ -19,9 +19,9 @@ import { useAppTheme } from '@/theme/use-app-theme';
  * une route dynamique `filtre/[type]`, `useLocalSearchParams()` renvoie un
  * objet vide au premier rendu sur appareil.
  *
- * L'en-tete vient de `SheetHeader` et non de la pile, et la hauteur est fixee
- * a la main : une `formSheet` ne transmet pas la sienne a son contenu, donc un
- * `flex: 1` s'y effondrait et la liste se dessinait par-dessus l'en-tete.
+ * Un seul enfant dans la feuille : le titre vit dans le defilement, avec les
+ * lignes. Une `formSheet` ne transmet pas sa hauteur a son contenu, et deux
+ * enfants frere et soeur finissaient dessines l'un sur l'autre.
  */
 export function FiltreListe({ kind }: { kind: 'pays' | 'tags' }) {
   const theme = useAppTheme();
@@ -48,84 +48,81 @@ export function FiltreListe({ kind }: { kind: 'pays' | 'tags' }) {
   const lignes = ['all', ...options];
 
   return (
-    <View style={{ height: hauteurFeuille(height, FRACTION_FILTRE), backgroundColor: theme.bgMain }}>
-      <SheetHeader
-        title={estPays ? 'Pays' : 'Tags'}
-        subtitle={`${options.length} choix · ${catalogue.length} recettes`}
-        onClose={() => router.back()}
-      />
+    <ScrollView
+      style={{
+        height: hauteurFeuille(height, FRACTION_FILTRE),
+        backgroundColor: theme.bgMain,
+      }}
+      contentContainerStyle={{
+        paddingHorizontal: spacing.row,
+        paddingBottom: spacing.section,
+      }}>
+      <SheetHeader title={estPays ? 'Pays' : 'Tags'} onClose={() => router.back()} />
 
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{
-          paddingHorizontal: spacing.row,
-          paddingBottom: spacing.section,
-        }}>
-        {options.length === 0 ? (
-          <Text
-            style={{
-              ...type.body,
-              color: theme.textPlaceholder,
-              textAlign: 'center',
-              paddingVertical: spacing.group,
-            }}>
-            {recipesQuery.isPending
-              ? 'Chargement…'
-              : estPays
-                ? 'Aucun pays dans le carnet.'
-                : 'Aucun tag dans le carnet.'}
-          </Text>
-        ) : null}
+      {options.length === 0 ? (
+        <Text
+          style={{
+            ...type.body,
+            color: theme.textPlaceholder,
+            textAlign: 'center',
+            paddingVertical: spacing.group,
+          }}>
+          {recipesQuery.isPending
+            ? 'Chargement…'
+            : estPays
+              ? 'Aucun pays dans le carnet.'
+              : 'Aucun tag dans le carnet.'}
+        </Text>
+      ) : null}
 
-        {lignes.map((option) => {
-          const actif = option === selected;
-          const libelle = option === 'all' ? (estPays ? 'Tous les pays' : 'Tous les tags') : option;
-          const drapeau = estPays && option !== 'all' ? flagUrl(option, 40) : null;
+      {lignes.map((option) => {
+        const actif = option === selected;
+        const libelle = option === 'all' ? (estPays ? 'Tous les pays' : 'Tous les tags') : option;
+        const drapeau = estPays && option !== 'all' ? flagUrl(option, 40) : null;
 
-          return (
-            <Pressable
-              key={option}
-              accessibilityRole="button"
-              accessibilityState={{ selected: actif }}
-              onPress={() => {
-                set(estPays ? 'country' : 'tag', option);
-                router.back();
-              }}
-              style={({ pressed }) => ({
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: spacing.row,
-                paddingHorizontal: spacing.row,
-                paddingVertical: 14,
-                borderRadius: radius.sm,
-                backgroundColor: actif || pressed ? theme.bgHover : 'transparent',
-              })}>
-              {drapeau ? (
-                <Image
-                  source={drapeau}
-                  contentFit="contain"
-                  style={{ width: 24, height: 17, borderRadius: 3 }}
-                  accessibilityIgnoresInvertColors
-                />
-              ) : (
-                <Text
-                  style={{
-                    fontSize: 14,
-                    width: 24,
-                    textAlign: 'center',
-                    color: theme.textSecondary,
-                  }}>
-                  {option === 'all' ? (estPays ? '◯' : '#') : estPays ? '·' : '#'}
-                </Text>
-              )}
-              <Text style={{ ...type.body, flex: 1, color: actif ? theme.accent : theme.textMain }}>
-                {libelle}
+        return (
+          <Pressable
+            key={option}
+            accessibilityRole="button"
+            accessibilityState={{ selected: actif }}
+            onPress={() => {
+              set(estPays ? 'country' : 'tag', option);
+              router.back();
+            }}
+            style={({ pressed }) => ({
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: spacing.row,
+              paddingHorizontal: spacing.row,
+              paddingVertical: 14,
+              borderRadius: radius.sm,
+              backgroundColor: actif || pressed ? theme.bgHover : 'transparent',
+            })}>
+            {drapeau ? (
+              <Image
+                source={drapeau}
+                contentFit="contain"
+                style={{ width: 24, height: 17, borderRadius: 3 }}
+                accessibilityIgnoresInvertColors
+              />
+            ) : (
+              <Text
+                style={{
+                  fontSize: 14,
+                  width: 24,
+                  textAlign: 'center',
+                  color: theme.textSecondary,
+                }}>
+                {option === 'all' ? (estPays ? '◯' : '#') : estPays ? '·' : '#'}
               </Text>
-              {actif ? <Text style={{ fontSize: 15, color: theme.accent }}>✓</Text> : null}
-            </Pressable>
-          );
-        })}
-      </ScrollView>
-    </View>
+            )}
+            <Text style={{ ...type.body, flex: 1, color: actif ? theme.accent : theme.textMain }}>
+              {libelle}
+            </Text>
+            {actif ? <Text style={{ fontSize: 15, color: theme.accent }}>✓</Text> : null}
+          </Pressable>
+        );
+      })}
+    </ScrollView>
   );
 }

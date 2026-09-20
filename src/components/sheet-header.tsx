@@ -4,46 +4,33 @@ import { radius, spacing, type } from '@/theme';
 import { useAppTheme } from '@/theme/use-app-theme';
 
 /**
- * En-tete dessine a l'interieur d'une feuille, et non fourni par la pile.
+ * Titre d'une feuille, place dans le contenu defilant et non fourni par la pile.
  *
- * Avec `headerShown: true`, une `formSheet` reserve la place de l'en-tete natif
- * et le contenu restant se retrouvait sans hauteur : la feuille s'ouvrait vide.
- * La seule feuille qui s'affichait, « Proposer une recette », etait aussi la
- * seule avec `headerTransparent: true`. On supprime donc l'en-tete natif partout
- * et on le redessine ici, dans le flux normal du contenu.
+ * Deux raisons. Un en-tete natif opaque dans une `formSheet` reserve sa hauteur
+ * et ne laisse rien au contenu : la feuille s'ouvrait vide. Et une `formSheet`
+ * ne transmet pas sa hauteur a son contenu, si bien que deux enfants frere et
+ * soeur — un en-tete puis une liste — se dessinaient l'un par-dessus l'autre.
+ * En vivant a l'interieur du defilement, ce titre n'a plus de voisin avec qui
+ * se disputer la hauteur.
  */
-export function SheetHeader({
-  title,
-  subtitle,
-  onClose,
-}: {
-  title: string;
-  subtitle?: string;
-  onClose: () => void;
-}) {
+export function SheetHeader({ title, onClose }: { title: string; onClose: () => void }) {
   const theme = useAppTheme();
 
   return (
     <View
       style={{
-        // Sans cela, le voisin en `flex: 1` peut ecraser l'en-tete a hauteur
-        // nulle : son texte deborde alors et la liste se dessine par-dessus.
-        flexShrink: 0,
         flexDirection: 'row',
         alignItems: 'center',
         gap: spacing.row,
-        paddingHorizontal: spacing.gutter,
-        paddingTop: spacing.gutter,
-        paddingBottom: spacing.sm,
+        paddingHorizontal: spacing.sm,
+        paddingTop: spacing.sm,
+        paddingBottom: spacing.row,
       }}>
-      <View style={{ flex: 1 }}>
-        <Text style={{ ...type.cardTitle, fontSize: 20, color: theme.textMain }} numberOfLines={1}>
-          {title}
-        </Text>
-        {subtitle ? (
-          <Text style={{ ...type.caption, color: theme.textSecondary }}>{subtitle}</Text>
-        ) : null}
-      </View>
+      <Text
+        style={{ ...type.cardTitle, fontSize: 20, flex: 1, color: theme.textMain }}
+        numberOfLines={1}>
+        {title}
+      </Text>
 
       <Pressable
         accessibilityRole="button"

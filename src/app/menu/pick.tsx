@@ -17,6 +17,10 @@ import { useAppTheme } from '@/theme/use-app-theme';
  *
  * Remplace la feuille `@expo/ui` qui s'affichait mais dont aucune ligne ne
  * repondait au toucher : son `Host` en position absolue n'avait aucune taille.
+ *
+ * Tout vit dans un seul enfant, le defilement : une `formSheet` ne transmet pas
+ * sa hauteur a son contenu, et des enfants frere et soeur s'y dessinaient l'un
+ * par-dessus l'autre.
  */
 export default function MenuPickScreen() {
   const theme = useAppTheme();
@@ -41,15 +45,16 @@ export default function MenuPickScreen() {
   }, [recipesQuery.data, search]);
 
   return (
-    <View
-      style={{ height: hauteurFeuille(height, FRACTION_CHOIX_RECETTE), backgroundColor: theme.bgMain }}>
-      <SheetHeader
-        title={titre}
-        subtitle={`${recettes.length} recettes`}
-        onClose={() => router.back()}
-      />
+    <ScrollView
+      style={{
+        height: hauteurFeuille(height, FRACTION_CHOIX_RECETTE),
+        backgroundColor: theme.bgMain,
+      }}
+      contentContainerStyle={{ paddingHorizontal: spacing.row, paddingBottom: spacing.section }}
+      keyboardShouldPersistTaps="handled">
+      <SheetHeader title={titre} onClose={() => router.back()} />
 
-      <View style={{ paddingHorizontal: spacing.gutter, paddingTop: spacing.row }}>
+      <View style={{ paddingHorizontal: spacing.sm, paddingBottom: spacing.row }}>
         <TextInput
           value={search}
           onChangeText={setSearch}
@@ -71,75 +76,70 @@ export default function MenuPickScreen() {
         />
       </View>
 
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ padding: spacing.row, paddingBottom: spacing.section }}
-        keyboardShouldPersistTaps="handled">
-        {recettes.length === 0 ? (
-          <Text
-            style={{
-              ...type.body,
-              color: theme.textPlaceholder,
-              textAlign: 'center',
-              paddingVertical: spacing.group,
-            }}>
-            Aucune recette à ce nom.
-          </Text>
-        ) : null}
+      {recettes.length === 0 ? (
+        <Text
+          style={{
+            ...type.body,
+            color: theme.textPlaceholder,
+            textAlign: 'center',
+            paddingVertical: spacing.group,
+          }}>
+          Aucune recette à ce nom.
+        </Text>
+      ) : null}
 
-        {recettes.map((recipe) => (
-          <Pressable
-            key={recipe.id}
-            accessibilityRole="button"
-            accessibilityLabel={recipe.title}
-            onPress={() => {
-              if (Number.isInteger(jour) && creneau) add(jour, creneau, recipe.id);
-              router.back();
-            }}
-            style={({ pressed }) => ({
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: spacing.row,
-              paddingHorizontal: spacing.row,
-              paddingVertical: spacing.sm + 2,
+      {recettes.map((recipe) => (
+        <Pressable
+          key={recipe.id}
+          accessibilityRole="button"
+          accessibilityLabel={recipe.title}
+          onPress={() => {
+            if (Number.isInteger(jour) && creneau) add(jour, creneau, recipe.id);
+            router.back();
+          }}
+          style={({ pressed }) => ({
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: spacing.row,
+            paddingHorizontal: spacing.row,
+            paddingVertical: spacing.sm + 2,
+            borderRadius: radius.sm,
+            backgroundColor: pressed ? theme.bgHover : 'transparent',
+          })}>
+          <Image
+            source={thumbUrl(recipe.image_url, 120)}
+            contentFit="cover"
+            transition={160}
+            style={{
+              width: 48,
+              height: 48,
               borderRadius: radius.sm,
-              backgroundColor: pressed ? theme.bgHover : 'transparent',
-            })}>
-            <Image
-              source={thumbUrl(recipe.image_url, 120)}
-              contentFit="cover"
-              transition={160}
-              style={{
-                width: 48,
-                height: 48,
-                borderRadius: radius.sm,
-                backgroundColor: theme.bgSubtle,
-              }}
-              accessibilityIgnoresInvertColors
-            />
+              backgroundColor: theme.bgSubtle,
+            }}
+            accessibilityIgnoresInvertColors
+          />
+          <Text
+            style={{ ...type.cardTitle, fontSize: 17, flex: 1, color: theme.textMain }}
+            numberOfLines={2}>
+            {recipe.title}
+          </Text>
+          {recipe.category === 'menu_only' ? (
             <Text
-              style={{ ...type.cardTitle, fontSize: 17, flex: 1, color: theme.textMain }}
-              numberOfLines={2}>
-              {recipe.title}
+              style={{
+                ...type.eyebrow,
+                fontSize: 9,
+                color: theme.accent,
+                borderWidth: 1,
+                borderColor: theme.borderCard,
+                borderRadius: radius.pill,
+                paddingHorizontal: 8,
+                paddingVertical: 3,
+              }}>
+              MINUTE
             </Text>
-            {recipe.category === 'menu_only' ? (
-              <Text
-                style={{
-                  ...type.eyebrow,
-                  fontSize: 9,
-                  color: theme.accent,
-                  borderWidth: 1,
-                  borderColor: theme.borderCard,
-                  borderRadius: radius.pill,
-                  paddingHorizontal: 8,
-                  paddingVertical: 3,
-                }}>
-                MINUTE
-              </Text>
-            ) : null}
-          </Pressable>
-        ))}
-      </ScrollView>
-    </View>
+          ) : null}
+        </Pressable>
+      ))}
+    </ScrollView>
   );
 }
