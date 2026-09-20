@@ -273,6 +273,12 @@ function EchangeVue({ echange, onChoisir }: { echange: Echange; onChoisir: (p: P
             </Pressable>
           ))}
 
+          {echange.recherche_web === false && echange.propositions.length > 0 ? (
+            <Text style={{ ...type.caption, fontSize: 11.5, color: theme.textPlaceholder }}>
+              Recettes proposées de mémoire, sans recherche web.
+            </Text>
+          ) : null}
+
           {echange.rejetees > 0 ? (
             <Text style={{ ...type.caption, fontSize: 11.5, color: theme.textPlaceholder }}>
               {echange.rejetees} proposition{echange.rejetees > 1 ? 's' : ''} écartée

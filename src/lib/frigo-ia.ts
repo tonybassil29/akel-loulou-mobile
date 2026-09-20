@@ -39,6 +39,8 @@ export interface Echange {
   ingredients: string[];
   propositions: Proposition[];
   rejetees: number;
+  /** false = reponse « de memoire », la recherche web n'etait pas disponible. */
+  recherche_web?: boolean;
   erreur?: string;
 }
 
@@ -76,14 +78,14 @@ export async function demander(message: string) {
   cache = { ...cache, echanges: [...cache.echanges, echange] };
   publier();
   try {
-    const r = await appeler<{ ingredients: string[]; propositions: Proposition[]; rejetees: number }>({
+    const r = await appeler<{ ingredients: string[]; propositions: Proposition[]; rejetees: number; recherche_web?: boolean }>({
       action: 'proposer',
       message,
     });
     cache = {
       ...cache,
       echanges: cache.echanges.map((e) =>
-        e.id === id ? { ...e, etat: 'ok', ingredients: r.ingredients, propositions: r.propositions, rejetees: r.rejetees } : e
+        e.id === id ? { ...e, etat: 'ok', ingredients: r.ingredients, propositions: r.propositions, rejetees: r.rejetees, recherche_web: r.recherche_web } : e
       ),
     };
   } catch (e) {

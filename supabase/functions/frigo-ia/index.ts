@@ -17,8 +17,12 @@ const CORS = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-/** Le moins cher qui sache chercher sur Google. Le second sert de repli. */
-const MODELES = ['gemini-2.5-flash', 'gemini-2.0-flash'];
+/**
+ * Du moins cher au plus capable ; on passe au suivant des qu'un modele refuse
+ * (retire, indisponible pour cette cle, outil non supporte...). Les alias
+ * `-latest` suivent les nouvelles versions sans qu'on ait a redeployer.
+ */
+const MODELES = ['gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-flash-latest', 'gemini-3.6-flash'];
 
 /** Ce qu'on a forcement chez soi : autorise sans etre ecrit. */
 const BASIQUES = [
@@ -74,9 +78,15 @@ function extraireJson(texte: string): unknown {
   return JSON.parse(sans.slice(debut, fin + 1));
 }
 
-async function gemini(cle: string, prompt: string, recherche: boolean): Promise<{ texte: string; sources: { titre: string; url: string }[] }> {
+/**
+ * Deux passes : d'abord avec la recherche Google, puis sans si aucun modele ne
+ * l'accepte — sur le palier gratuit d'AI Studio, la recherche a un quota nul,
+ * et l'on prefere une reponse « de memoire » a une erreur. Le drapeau
+ * `rechercheWeb` remonte jusqu'a l'ecran pour le dire honnetement.
+ */
+async function gemini(cle: string, prompt: string): Promise<{ texte: string; sources: { titre: string; url: string }[]; rechercheWeb: boolean }> {
   let derniere = '';
-  for (const modele of MODELES) {
+  for (const recherche of [true, false]) for (const modele of MODELES) {
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${modele}:generateContent?key=${cle}`,
       {
@@ -89,8 +99,11 @@ async function gemini(cle: string, prompt: string, recherche: boolean): Promise<
         }),
       }
     );
-    if (res.status === 404) { derniere = `${modele} indisponible`; continue; }
-    if (!res.ok) throw new Error(`Gemini ${res.status} : ${(await res.text()).slice(0, 300)}`);
+    if (!res.ok) {
+      // On memorise la raison et on essaie le modele suivant.
+      derniere = `${modele} : ${res.status} ${(await res.text()).slice(0, 200)}`;
+      continue;
+    }
     const data = await res.json();
     const cand = data.candidates?.[0];
     const texte = (cand?.content?.parts ?? []).map((p: { text?: string }) => p.text ?? '').join('');
@@ -98,7 +111,7 @@ async function gemini(cle: string, prompt: string, recherche: boolean): Promise<
       .map((c: { web?: { title?: string; uri?: string } }) => c.web)
       .filter((w: { uri?: string } | undefined) => w?.uri)
       .map((w: { title?: string; uri: string }) => ({ titre: w.title ?? w.uri, url: w.uri }));
-    return { texte, sources };
+    return { texte, sources, rechercheWeb: recherche };
   }
   throw new Error(derniere || 'Aucun modele disponible');
 }
@@ -110,7 +123,7 @@ L'utilisateur a chez lui EXACTEMENT ceci : « ${message} ».
 Il a aussi, sans le dire, les basiques du placard : ${BASIQUES.join(', ')}.
 
 1) Liste les ingredients qu'il a declares (noms simples, en francais, sans quantite).
-2) Cherche sur Google des recettes realisables avec UNIQUEMENT ces ingredients declares + les basiques. Propose entre 2 et 4 recettes, les plus differentes possibles.
+2) Cherche (sur Google si tu en as l'outil, sinon dans ta connaissance des recettes classiques et des grands sites de cuisine) des recettes realisables avec UNIQUEMENT ces ingredients declares + les basiques. Propose entre 2 et 4 recettes, les plus differentes possibles.
    REGLE ABSOLUE : aucun ingredient non declare et non basique. Pas de courgette si l'utilisateur n'a pas dit courgette. Pas de « ou autre legume ».
    Tu peux aussi proposer, si elle convient, une recette du carnet familial ci-dessous (indique alors "carnet": true).
 3) Reponds UNIQUEMENT avec ce JSON, sans commentaire :
@@ -125,7 +138,7 @@ Il a aussi, sans le dire, les basiques du placard : ${BASIQUES.join(', ')}.
       "ingredients_utilises": ["uniquement des ingredients declares"],
       "basiques_utilises": ["uniquement des basiques"],
       "carnet": false,
-      "source": { "titre": "nom du site", "url": "https://..." } ou null
+      "source": { "titre": "nom du site", "url": "https://..." } ou null   // null si tu n'es pas SUR de l'URL : n'invente jamais de lien
     }
   ]
 }
@@ -133,7 +146,7 @@ Il a aussi, sans le dire, les basiques du placard : ${BASIQUES.join(', ')}.
 Carnet familial (titre : ingredients) :
 ${carnet.map((r) => `- ${r.titre} : ${r.ingredients.join(', ')}`).join('\n')}`;
 
-  const { texte, sources } = await gemini(cle, prompt, true);
+  const { texte, sources, rechercheWeb } = await gemini(cle, prompt);
   const brut = extraireJson(texte) as { ingredients?: string[]; propositions?: (Proposition & { carnet?: boolean })[] };
   const declares = (brut.ingredients ?? []).map(String);
 
@@ -147,7 +160,7 @@ ${carnet.map((r) => `- ${r.titre} : ${r.ingredients.join(', ')}`).join('\n')}`;
     source: p.source?.url ? p.source : (sources[i] ?? null),
   }));
 
-  return { ingredients: declares, propositions, rejetees: (brut.propositions?.length ?? 0) - propositions.length };
+  return { ingredients: declares, propositions, rejetees: (brut.propositions?.length ?? 0) - propositions.length, recherche_web: rechercheWeb };
 }
 
 async function detailler(cle: string, titre: string, declares: string[], source: string | null) {
@@ -165,10 +178,10 @@ Reponds UNIQUEMENT avec ce JSON :
   "conseil": "un conseil de cuisinier" ou null,
   "source": { "titre": "...", "url": "https://..." } ou null
 }`;
-  const { texte, sources } = await gemini(cle, prompt, true);
+  const { texte, sources, rechercheWeb } = await gemini(cle, prompt);
   const d = extraireJson(texte) as Detail;
   if (!d.source?.url && sources[0]) d.source = sources[0];
-  return d;
+  return { ...d, recherche_web: rechercheWeb };
 }
 
 Deno.serve(async (req) => {
