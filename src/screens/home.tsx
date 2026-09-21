@@ -1,4 +1,5 @@
 import { useIsRestoring } from '@tanstack/react-query';
+import * as Haptics from 'expo-haptics';
 import { type Href, useRouter } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { useMemo, useState } from 'react';
@@ -138,27 +139,19 @@ export function HomeScreen() {
                    qui a laisse sa place au Menu dans la barre d'onglets --- */}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.row }}>
               <View style={{ width: 28, height: 1, backgroundColor: theme.accent }} />
-              <Text style={{ ...type.eyebrow, flex: 1, color: theme.accent }}>
-                AKEL LOULOU
-              </Text>
-              {/* Mode admin : le carnet complet, meme compte que le site. */}
+              {/* Entree de l'admin : un appui long de deux secondes sur le nom.
+                  Rien de visible, rien d'annonce a VoiceOver, et le geste
+                  n'ouvre que l'ecran de connexion — jamais l'admin lui-meme. */}
               <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Mode admin"
-                hitSlop={6}
-                onPress={() => router.push('/admin' as Href)}
-                style={({ pressed }) => ({
-                  width: 32,
-                  height: 32,
-                  borderRadius: 16,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderWidth: 1,
-                  borderColor: theme.borderCard,
-                  backgroundColor: theme.bgCard,
-                  opacity: pressed ? 0.7 : 1,
-                })}>
-                <Icon name={icons.lock} size={12} color={theme.textSecondary} />
+                accessible={false}
+                importantForAccessibility="no"
+                delayLongPress={2000}
+                onLongPress={() => {
+                  if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  router.push('/admin' as Href);
+                }}
+                style={{ flex: 1 }}>
+                <Text style={{ ...type.eyebrow, color: theme.accent }}>AKEL LOULOU</Text>
               </Pressable>
               <Pressable
                 accessibilityRole="button"

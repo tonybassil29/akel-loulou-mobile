@@ -74,6 +74,14 @@ function EnTete({ titre, onSignOut }: { titre: string; onSignOut?: () => void })
   );
 }
 
+/**
+ * Verrou local apres des echecs repetes : cinq mauvais mots de passe et l'ecran
+ * refuse toute tentative pendant cinq minutes. Supabase limite deja les essais
+ * cote serveur ; ceci ferme aussi la porte cote telephone, et decourage.
+ * En memoire de processus : quitter et rouvrir l'ecran ne remet pas a zero.
+ */
+const verrou = { echecs: 0, jusquA: 0 };
+
 function Connexion({
   onSignIn,
   onForgot,
@@ -93,8 +101,23 @@ function Connexion({
   const [enCours, setEnCours] = useState(false);
 
   const valider = async () => {
-    setErreur(null); setInfo(null); setEnCours(true);
-    try { await onSignIn(password); } catch (e) { setErreur((e as Error).message); } finally { setEnCours(false); }
+    setErreur(null); setInfo(null);
+    if (Date.now() < verrou.jusquA) {
+      setErreur(`Trop d'essais. Réessaie dans ${Math.ceil((verrou.jusquA - Date.now()) / 60000)} min.`);
+      return;
+    }
+    setEnCours(true);
+    try {
+      await onSignIn(password);
+      verrou.echecs = 0;
+    } catch (e) {
+      verrou.echecs += 1;
+      if (verrou.echecs >= 5) { verrou.jusquA = Date.now() + 5 * 60_000; verrou.echecs = 0; }
+      setPassword('');
+      setErreur((e as Error).message);
+    } finally {
+      setEnCours(false);
+    }
   };
 
   const oublie = async () => {

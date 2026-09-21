@@ -36,7 +36,7 @@ export function useAdminSession() {
    * revient ensuite se connecter ici. Aucun mot de passe ne transite par nous.
    */
   const resetPassword = useCallback(async () => {
-    const { error } = await supabase.auth.resetPasswordForEmail(ADMIN_EMAIL, { redirectTo: `${SITE_URL}/admin` });
+    const { error } = await supabase.auth.resetPasswordForEmail(ADMIN_EMAIL, { redirectTo: `${SITE_URL}/seodvfaxaidp` });
     if (error) throw new Error(error.message);
   }, []);
 
