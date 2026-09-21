@@ -12,7 +12,8 @@
       "bundleIdentifier": "com.akelloulou.recipes",
       "deploymentTarget": "16.4",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "Choisir une photo de recette à publier dans le carnet (mode admin uniquement)."
       },
       "privacyManifests": {
         "NSPrivacyAccessedAPITypes": [
@@ -23,7 +24,16 @@
             ]
           }
         ],
-        "NSPrivacyCollectedDataTypes": [],
+        "NSPrivacyCollectedDataTypes": [
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypeOtherUserContent",
+            "NSPrivacyCollectedDataTypeLinked": false,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+            ]
+          }
+        ],
         "NSPrivacyTracking": false,
         "NSPrivacyTrackingDomains": []
       }
@@ -55,7 +65,13 @@
           "imageWidth": 140
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Choisir une photo de recette à publier dans le carnet (mode admin uniquement)."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
