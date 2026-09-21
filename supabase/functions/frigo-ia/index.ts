@@ -95,7 +95,7 @@ async function gemini(cle: string, prompt: string): Promise<{ texte: string; sou
         body: JSON.stringify({
           contents: [{ role: 'user', parts: [{ text: prompt }] }],
           ...(recherche ? { tools: [{ google_search: {} }] } : {}),
-          generationConfig: { temperature: 0.4 },
+          generationConfig: { temperature: 0.6, maxOutputTokens: 8192 },
         }),
       }
     );
@@ -123,7 +123,7 @@ L'utilisateur a chez lui EXACTEMENT ceci : « ${message} ».
 Il a aussi, sans le dire, les basiques du placard : ${BASIQUES.join(', ')}.
 
 1) Liste les ingredients qu'il a declares (noms simples, en francais, sans quantite).
-2) Cherche (sur Google si tu en as l'outil, sinon dans ta connaissance des recettes classiques et des grands sites de cuisine) des recettes realisables avec UNIQUEMENT ces ingredients declares + les basiques. Propose entre 2 et 10 recettes : toutes celles qui sont vraiment pertinentes et fiables (plats connus, realisables, dont tu es sur), les plus differentes possibles entre elles. Ne remplis pas pour atteindre 10 — mieux vaut 5 bonnes recettes que 10 approximatives — mais ne t'arrete pas a 3 s'il en existe davantage.
+2) Cherche (sur Google si tu en as l'outil, sinon dans ta connaissance des recettes classiques et des grands sites de cuisine) des recettes realisables avec UNIQUEMENT ces ingredients declares + les basiques. Propose JUSQU'A 10 recettes, et vise 10 des que les ingredients le permettent (avec 4 ingredients ou plus, il y a presque toujours 10 plats connus et fiables). Pour y arriver, varie les techniques (poele, four, mijote, gratin, boulettes, farci, saute, wok, soupe, salade tiede, galettes, omelette, riz saute, pates au four...) et les cuisines (francaise, libanaise, italienne, asiatique...). Chaque recette doit etre un plat connu, realisable, dont tu es sur. Ne descends en dessous de 10 que si tu ne peux vraiment pas en garantir davantage ; minimum 2.
    REGLE ABSOLUE : aucun ingredient non declare et non basique. Pas de courgette si l'utilisateur n'a pas dit courgette. Pas de « ou autre legume ».
    Tu peux aussi proposer, si elle convient, une recette du carnet familial ci-dessous (indique alors "carnet": true).
 3) Reponds UNIQUEMENT avec ce JSON, sans commentaire :
