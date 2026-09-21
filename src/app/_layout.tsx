@@ -100,6 +100,7 @@ export default function RootLayout() {
           <Stack.Screen name="admin/recette/[id]" />
           <Stack.Screen name="admin/suggestions" />
           <Stack.Screen name="admin/textes" />
+          <Stack.Screen name="admin/mot-de-passe" />
           {/* Feuilles natives : des ecrans empiles, pas des vues superposees.
               Les feuilles `@expo/ui` affichaient leur contenu mais aucune
               ligne ne recevait le toucher. */}

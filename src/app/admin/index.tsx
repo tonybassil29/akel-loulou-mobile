@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { type Href, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,9 +20,9 @@ import { useAppTheme } from '@/theme/use-app-theme';
  * les suggestions recues et les textes de l'app. Meme compte que le site.
  */
 export default function AdminScreen() {
-  const { session, isAdmin, signIn, signOut } = useAdminSession();
+  const { session, isAdmin, signIn, signOut, resetPassword } = useAdminSession();
   if (session === undefined) return <Attente />;
-  if (!isAdmin) return <Connexion onSignIn={signIn} signedInAs={session?.user?.email ?? null} onSignOut={signOut} />;
+  if (!isAdmin) return <Connexion onSignIn={signIn} onForgot={resetPassword} signedInAs={session?.user?.email ?? null} onSignOut={signOut} />;
   return <Tableau onSignOut={signOut} />;
 }
 
@@ -76,30 +76,33 @@ function EnTete({ titre, onSignOut }: { titre: string; onSignOut?: () => void })
 
 function Connexion({
   onSignIn,
+  onForgot,
   signedInAs,
   onSignOut,
 }: {
-  onSignIn: (e: string, p: string) => Promise<void>;
+  onSignIn: (p: string) => Promise<void>;
+  onForgot: () => Promise<void>;
   signedInAs: string | null;
   onSignOut: () => Promise<void>;
 }) {
   const theme = useAppTheme();
   const insets = useSafeAreaInsets();
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [erreur, setErreur] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [enCours, setEnCours] = useState(false);
 
   const valider = async () => {
-    setErreur(null);
-    setEnCours(true);
+    setErreur(null); setInfo(null); setEnCours(true);
+    try { await onSignIn(password); } catch (e) { setErreur((e as Error).message); } finally { setEnCours(false); }
+  };
+
+  const oublie = async () => {
+    setErreur(null); setInfo(null); setEnCours(true);
     try {
-      await onSignIn(email, password);
-    } catch (e) {
-      setErreur((e as Error).message);
-    } finally {
-      setEnCours(false);
-    }
+      await onForgot();
+      setInfo("Un lien vient d'être envoyé à ton adresse. Ouvre-le : tu choisiras un nouveau mot de passe sur le site, puis reviens te connecter ici.");
+    } catch (e) { setErreur((e as Error).message); } finally { setEnCours(false); }
   };
 
   return (
@@ -115,22 +118,23 @@ function Connexion({
           <Pressable onPress={onSignOut}><Text style={{ ...type.bodySemi, color: theme.accent }}>Changer de compte</Text></Pressable>
         </View>
       ) : null}
-      <Text style={{ ...type.body, color: theme.textMuted }}>Le même compte que sur le site.</Text>
-      <Field label="E-mail" value={email} onChangeText={setEmail} placeholder="toi@exemple.fr" autoCapitalize="none" keyboardType="email-address" textContentType="username" />
-      <Field label="Mot de passe" value={password} onChangeText={setPassword} placeholder="••••••••" secureTextEntry textContentType="password" />
+      <Text style={{ ...type.body, color: theme.textMuted }}>Le même mot de passe que sur le site.</Text>
+      <Field label="Mot de passe" value={password} onChangeText={setPassword} placeholder="••••••••••••" secureTextEntry textContentType="password" />
       {erreur ? <Text style={{ ...type.caption, color: '#E5484D' }}>{erreur}</Text> : null}
+      {info ? (
+        <View style={{ padding: spacing.row, borderRadius: radius.md, backgroundColor: theme.bgSubtle }}>
+          <Text style={{ ...type.body, fontSize: 14, color: theme.textMain }}>{info}</Text>
+        </View>
+      ) : null}
       <Pressable
         accessibilityRole="button"
-        disabled={enCours || !email || !password}
+        disabled={enCours || !password}
         onPress={valider}
-        style={({ pressed }) => ({
-          alignItems: 'center',
-          paddingVertical: spacing.row + 2,
-          borderRadius: radius.pill,
-          backgroundColor: theme.accent,
-          opacity: enCours || !email || !password ? 0.4 : pressed ? 0.85 : 1,
-        })}>
+        style={({ pressed }) => ({ alignItems: 'center', paddingVertical: spacing.row + 2, borderRadius: radius.pill, backgroundColor: theme.accent, opacity: enCours || !password ? 0.4 : pressed ? 0.85 : 1 })}>
         <Text style={{ ...type.button, color: theme.btnText }}>{enCours ? 'Connexion…' : 'Se connecter'}</Text>
+      </Pressable>
+      <Pressable accessibilityRole="button" disabled={enCours} onPress={oublie} style={{ alignItems: 'center', paddingVertical: spacing.sm }}>
+        <Text style={{ ...type.caption, color: theme.textSecondary }}>Mot de passe oublié ?</Text>
       </Pressable>
     </ScrollView>
   );
@@ -175,6 +179,7 @@ function Tableau({ onSignOut }: { onSignOut: () => Promise<void> }) {
         <Raccourci label="Nouvelle recette" icon={icons.plus} accent onPress={() => router.push({ pathname: '/admin/recette/[id]', params: { id: 'new' } })} />
         <Raccourci label={`Suggestions${suggestions.data?.length ? ` · ${suggestions.data.length}` : ''}`} icon={icons.sparkles} onPress={() => router.push('/admin/suggestions')} />
         <Raccourci label="Textes de l'app" icon={icons.pencil} onPress={() => router.push('/admin/textes')} />
+        <Raccourci label="Mot de passe" icon={icons.lock} onPress={() => router.push('/admin/mot-de-passe' as Href)} />
       </View>
 
       {/* --- chiffres --- */}

@@ -3,6 +3,9 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { ADMIN_EMAIL, supabase } from '@/lib/supabase';
 
+/** Le site, qui recoit le lien de reinitialisation et affiche le formulaire. */
+const SITE_URL = 'https://laurecipe.akeloulou.workers.dev';
+
 /**
  * Session admin, derivee uniquement de Supabase Auth — comme le site. C'est le
  * meme JWT qui autorise les ecritures cote RLS : un simple drapeau local
@@ -21,8 +24,25 @@ export function useAdminSession() {
     };
   }, []);
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+  /** Un seul compte admin, connu de la base : on ne demande que le mot de passe. */
+  const signIn = useCallback(async (password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email: ADMIN_EMAIL, password });
+    if (error) throw new Error(error.message === 'Invalid login credentials' ? 'Mot de passe incorrect.' : error.message);
+  }, []);
+
+  /**
+   * Mot de passe oublie : Supabase envoie un lien a l'adresse admin. Le lien
+   * ouvre le site, qui affiche le formulaire de nouveau mot de passe ; on
+   * revient ensuite se connecter ici. Aucun mot de passe ne transite par nous.
+   */
+  const resetPassword = useCallback(async () => {
+    const { error } = await supabase.auth.resetPasswordForEmail(ADMIN_EMAIL, { redirectTo: `${SITE_URL}/admin` });
+    if (error) throw new Error(error.message);
+  }, []);
+
+  /** Nouveau mot de passe, session ouverte. Supabase ne garde qu'un hash bcrypt sale. */
+  const changePassword = useCallback(async (password: string) => {
+    const { error } = await supabase.auth.updateUser({ password });
     if (error) throw new Error(error.message);
   }, []);
 
@@ -36,5 +56,7 @@ export function useAdminSession() {
     isAdmin: session?.user?.email === ADMIN_EMAIL,
     signIn,
     signOut,
+    resetPassword,
+    changePassword,
   };
 }
