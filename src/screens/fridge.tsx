@@ -59,6 +59,10 @@ export function FridgeScreen() {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.row }}>
             <View style={{ width: 28, height: 1, backgroundColor: theme.accent }} />
             <Text style={{ ...type.eyebrow, flex: 1, color: theme.accent }}>AKEL LOULOU</Text>
+          <Text style={{ ...type.caption, fontSize: 12, color: theme.textPlaceholder }}>
+            Ta phrase est envoyée à notre serveur puis à Google (Gemini) pour trouver les recettes.
+            N'y écris que des ingrédients, rien de personnel.
+          </Text>
             {echanges.length > 0 ? (
               <Pressable accessibilityRole="button" onPress={effacer} hitSlop={8}>
                 <Text style={{ ...type.caption, color: theme.textSecondary }}>Effacer</Text>
