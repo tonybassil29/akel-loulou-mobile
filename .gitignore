@@ -28,3 +28,6 @@ credentials.json
 
 # Archive de transfert des secrets — ne jamais commiter
 akel-loulou-secrets.tar.gz
+
+# Notes de revue Apple : contiennent les identifiants de demo, depot public
+NOTES_REVUE_APPLE.txt

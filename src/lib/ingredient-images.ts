@@ -1,48 +1,15 @@
 /**
- * Image d'un ingredient. Meme table que le site (src/components/Recipe.tsx) :
- * un dictionnaire francais -> visuel TheMealDB, complete par une deduction sur
- * le nom nettoye de sa quantite. Les images personnalisees stockees dans
- * settings.custom_ingredient_images ont toujours la priorite.
+ * Image d'un ingredient, resolue uniquement a partir de
+ * settings.custom_ingredient_images — nos propres visuels, heberges sur notre
+ * compte Cloudinary.
+ *
+ * La table de 26 visuels TheMealDB qui servait de repli a ete retiree. Leurs
+ * conditions reservent l'usage commercial a un palier payant et exigent une
+ * attribution : nous n'avions ni l'un ni l'autre, et aucun justificatif a
+ * presenter si App Review en demande (guideline 5.2.1, et point 6 de sa
+ * demande d'informations). Sans visuel a nous, la vignette affiche son icone
+ * neutre — on n'affiche jamais une image qui n'a pas ete relue.
  */
-
-/**
- * Attention : chaque visuel ajoute ici doit etre verifie a l'oeil. La table
- * d'origine contenait vingt-huit photos d'emballages de marque (Tate & Lyle,
- * Dr. Oetker, Anchor, Hershey's, Colman's, Sarson's, Swanson, Alpro,
- * Sargento...), ce qui expose l'app aux guidelines 5.2.1 et 2.3.9. Elles ont
- * ete retirees : sans visuel, la vignette affiche une icone neutre.
- */
-const INGREDIENT_IMAGES: Record<string, string> = {
-  "lait": "https://www.themealdb.com/images/ingredients/Milk.png",
-  "oeufs": "https://www.themealdb.com/images/ingredients/Egg.png",
-  "oeuf": "https://www.themealdb.com/images/ingredients/Egg.png",
-  "chocolat": "https://www.themealdb.com/images/ingredients/Chocolate.png",
-  "banane": "https://www.themealdb.com/images/ingredients/Banana.png",
-  "pomme": "https://www.themealdb.com/images/ingredients/Apple.png",
-  "tomate": "https://www.themealdb.com/images/ingredients/Tomato.png",
-  "oignon": "https://www.themealdb.com/images/ingredients/Onion.png",
-  "ail": "https://www.themealdb.com/images/ingredients/Garlic.png",
-  "poulet": "https://www.themealdb.com/images/ingredients/Chicken.png",
-  "boeuf": "https://www.themealdb.com/images/ingredients/Beef.png",
-  "saumon": "https://www.themealdb.com/images/ingredients/Salmon.png",
-  "fromage": "https://www.themealdb.com/images/ingredients/Cheese.png",
-  "gruyère": "https://www.themealdb.com/images/ingredients/Cheese.png",
-  "citron": "https://www.themealdb.com/images/ingredients/Lemon.png",
-  "fraise": "https://www.themealdb.com/images/ingredients/Strawberries.png",
-  "framboise": "https://www.themealdb.com/images/ingredients/Raspberries.png",
-  "amande": "https://www.themealdb.com/images/ingredients/Almonds.png",
-  "noix": "https://www.themealdb.com/images/ingredients/Walnuts.png",
-  "noisette": "https://www.themealdb.com/images/ingredients/Hazelnuts.png",
-  "vin rouge": "https://www.themealdb.com/images/ingredients/Red%20Wine.png",
-  "pomme de terre": "https://www.themealdb.com/images/ingredients/Potatoes.png",
-  "carotte": "https://www.themealdb.com/images/ingredients/Carrots.png",
-  "courgette": "https://www.themealdb.com/images/ingredients/Courgettes.png",
-  "lime": "https://www.themealdb.com/images/ingredients/Lime.png",
-  "spaghetti": "https://www.themealdb.com/images/ingredients/Spaghetti.png"
-};
-
-// Cles triees du plus long au plus court : "sucre glace" doit gagner sur "sucre".
-const SORTED_KEYS = Object.keys(INGREDIENT_IMAGES).sort((a, b) => b.length - a.length);
 
 // Unites triees du plus long au plus court et suivies d'une frontiere de mot :
 // sans \b, le "g" de l'alternance mangeait le "g" de "gousses d'ail" et le
@@ -85,6 +52,17 @@ export function splitIngredient(text: string): { qty: string; nom: string } {
   return { qty, nom: nom || text };
 }
 
+/** Singulier approximatif : « tomates » et « tomate » doivent se rejoindre. */
+function racine(v: string): string {
+  const b = v.toLowerCase();
+  return b.length > 3 && b.endsWith('s') ? b.slice(0, -1) : b;
+}
+
+/** Echappe les caracteres speciaux d'une cle avant de la passer en expression. */
+function echapper(v: string): string {
+  return v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 /** Retire la quantite pour n'afficher que le nom sous la vignette. */
 export function ingredientName(text: string): string {
   if (!text) return '';
@@ -106,9 +84,15 @@ export function getIngredientImage(
   );
   if (customKey) return customImages[customKey];
 
+  // Puis par mot entier, cles du plus long au plus court pour que « sauce
+  // tomate » l'emporte sur « tomate ». La frontiere de mot est indispensable :
+  // une simple recherche de sous-chaine trouvait « oeuf » dans « boeuf » et
+  // servait un oeuf pour de la viande, et « pomme » dans « pomme de terre ».
   const lower = text.toLowerCase();
-  for (const key of SORTED_KEYS) {
-    if (lower.includes(key)) return INGREDIENT_IMAGES[key];
+  const keys = Object.keys(customImages).sort((a, b) => b.length - a.length);
+  for (const key of keys) {
+    const motif = new RegExp(`(^|[^\\p{L}])${echapper(racine(key))}s?($|[^\\p{L}])`, 'u');
+    if (motif.test(lower)) return customImages[key];
   }
 
   // Pas de repli qui devine une URL TheMealDB a partir du nom de l'ingredient :

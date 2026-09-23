@@ -1,11 +1,12 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect } from 'react';
-import { ActivityIndicator, Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, icons } from '@/components/icon';
 import { SectionHeader } from '@/components/section-header';
 import { useFrigoIa } from '@/lib/frigo-ia';
+import { useSendSuggestion } from '@/lib/queries';
 import { splitIngredient } from '@/lib/ingredient-images';
 import { useShoppingList } from '@/lib/shopping-list';
 import { radius, spacing, type } from '@/theme';
@@ -18,6 +19,11 @@ import { useAppTheme } from '@/theme/use-app-theme';
  */
 export default function FrigoDetailScreen() {
   const theme = useAppTheme();
+  // Signalement d'une proposition : obligatoire des lors qu'un ecran affiche du
+  // contenu produit par un modele (guidelines 1.2 et 4.7). Il emprunte la table
+  // des suggestions, deja en place, prefixe pour etre trie a la lecture.
+  const signalement = useSendSuggestion();
+  const [signale, setSignale] = useState(false);
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { echange, titre } = useLocalSearchParams<{ echange: string; titre: string }>();
@@ -195,13 +201,50 @@ export default function FrigoDetailScreen() {
                   </View>
                 ) : null}
 
-                {detail.source?.url ? (
-                  <Pressable accessibilityRole="link" onPress={() => Linking.openURL(detail.source!.url)}>
-                    <Text style={{ ...type.caption, color: theme.textSecondary }}>
-                      Source : <Text style={{ color: theme.accent }}>{detail.source.titre}</Text>
-                    </Text>
-                  </Pressable>
+                {/* La source est citee, jamais ouverte : l'URL vient du modele,
+                    pas d'une liste que nous avons relue. Y envoyer l'utilisateur
+                    d'un toucher vaut « acces web sans restriction » au
+                    questionnaire de classification d'Apple, ce qui imposerait un
+                    17+ a un carnet de recettes. L'attribution reste, le lien part. */}
+                {detail.source?.titre ? (
+                  <Text style={{ ...type.caption, color: theme.textSecondary }}>
+                    Source : {detail.source.titre}
+                  </Text>
                 ) : null}
+
+                <View style={{ marginTop: spacing.row, alignItems: 'flex-start' }}>
+                  {signale ? (
+                    <Text style={{ ...type.caption, color: theme.textSecondary }}>
+                      Merci, c&apos;est signalé. Nous relisons chaque signalement.
+                    </Text>
+                  ) : (
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Signaler cette proposition"
+                      disabled={signalement.isPending}
+                      onPress={() => {
+                        signalement.mutate(
+                          {
+                            title: `[SIGNALEMENT] ${detail.titre}`,
+                            description: `Proposition du Frigo signalée par un utilisateur.\nIngrédients : ${(detail.ingredients ?? []).join(', ')}`,
+                          },
+                          { onSuccess: () => setSignale(true) }
+                        );
+                      }}
+                      style={({ pressed }) => ({
+                        paddingHorizontal: spacing.row,
+                        paddingVertical: 9,
+                        borderRadius: radius.pill,
+                        borderWidth: 1,
+                        borderColor: theme.borderCard,
+                        opacity: signalement.isPending ? 0.5 : pressed ? 0.7 : 1,
+                      })}>
+                      <Text style={{ ...type.caption, color: theme.textSecondary }}>
+                        Signaler cette proposition
+                      </Text>
+                    </Pressable>
+                  )}
+                </View>
               </>
             ) : null}
           </>

@@ -140,11 +140,14 @@ export function HomeScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.row }}>
               <View style={{ width: 28, height: 1, backgroundColor: theme.accent }} />
               {/* Entree de l'admin : un appui long de deux secondes sur le nom.
-                  Rien de visible, rien d'annonce a VoiceOver, et le geste
-                  n'ouvre que l'ecran de connexion — jamais l'admin lui-meme. */}
+                  Le nom reste lisible par VoiceOver : le masquer relevait de la
+                  dissimulation au sens de la guideline 2.3.1, et privait au
+                  passage les lecteurs d'ecran du titre de l'app. Le geste
+                  n'ouvre que l'ecran de connexion — jamais l'admin lui-meme, qui
+                  reste protege par mot de passe et declare a App Review. */}
               <Pressable
-                accessible={false}
-                importantForAccessibility="no"
+                accessibilityRole="header"
+                accessibilityLabel="Akel Loulou"
                 delayLongPress={2000}
                 onLongPress={() => {
                   if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);

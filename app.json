@@ -36,7 +36,8 @@
         ],
         "NSPrivacyTracking": false,
         "NSPrivacyTrackingDomains": []
-      }
+      },
+      "buildNumber": "16"
     },
     "android": {
       "package": "com.akelloulou.recipes",
@@ -71,7 +72,8 @@
         {
           "photosPermission": "Choisir une photo de recette à publier dans le carnet (mode admin uniquement)."
         }
-      ]
+      ],
+      "./plugins/with-uiscene.js"
     ],
     "experiments": {
       "typedRoutes": true,
